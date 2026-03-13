@@ -46,6 +46,18 @@ public class WorkEntryController {
         }
     }
 
+    @PatchMapping("/{id}/toggle-paid")
+    public ResponseEntity<WorkEntry> togglePaid(@PathVariable Long id) {
+        try {
+            WorkEntry entry = workEntryService.getWorkEntryById(id)
+                .orElseThrow(() -> new RuntimeException("Not found"));
+            entry.setIsPaid(!Boolean.TRUE.equals(entry.getIsPaid()));
+            return ResponseEntity.ok(workEntryService.saveWorkEntry(entry));
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteWorkEntry(@PathVariable Long id) {
         workEntryService.deleteWorkEntry(id);

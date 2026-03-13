@@ -36,6 +36,7 @@ public class WorkEntry {
     private Integer totalMinutes;
     private Double totalCost;
     private Boolean isManualCost = false;
+    private Boolean isPaid = false;
 
     @Column(columnDefinition = "TEXT")
     private String notes;
@@ -74,6 +75,9 @@ public class WorkEntry {
 
     public Boolean getIsManualCost() { return isManualCost; }
     public void setIsManualCost(Boolean isManualCost) { this.isManualCost = isManualCost; }
+
+    public Boolean getIsPaid() { return isPaid; }
+    public void setIsPaid(Boolean isPaid) { this.isPaid = isPaid; }
 
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }

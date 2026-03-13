@@ -227,6 +227,7 @@ function renderTable() {
             <td class="${remaining > 0 ? 'amount-negative' : 'amount-zero'}">${formatCurrency(remaining)}</td>
             <td style="font-size:12px; color:var(--text-muted);">${p.remarks || '—'}</td>
             <td>
+                <button class="btn btn-secondary btn-sm" onclick="editPayment(${p.id})">✏️ Edit</button>
                 <button class="btn btn-danger btn-sm" onclick="promptDelete(${p.id})">🗑️</button>
             </td>
         </tr>`;
@@ -238,6 +239,22 @@ function openAddModal() {
     document.getElementById('payForm').reset();
     document.getElementById('payId').value = '';
     document.getElementById('pDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('clientBalanceInfo').style.display = 'none';
+    document.getElementById('pClient').disabled = false;
+    openModal('payModal');
+}
+
+function editPayment(id) {
+    const p = payments.find(x => x.id === id);
+    if (!p) return;
+    document.getElementById('modalTitle').textContent = 'Edit Payment';
+    document.getElementById('payId').value = p.id;
+    document.getElementById('pClient').value = p.client?.id || '';
+    document.getElementById('pClient').disabled = true; // client cannot change on edit
+    document.getElementById('pDate').value = p.paymentDate || '';
+    document.getElementById('pAmount').value = p.paidAmount || '';
+    document.getElementById('pMode').value = p.paymentMode || 'CASH';
+    document.getElementById('pRemarks').value = p.remarks || '';
     document.getElementById('clientBalanceInfo').style.display = 'none';
     openModal('payModal');
 }
@@ -256,6 +273,7 @@ function showClientBalance() {
 }
 
 async function savePayment() {
+    const id = document.getElementById('payId').value;
     const clientId = document.getElementById('pClient').value;
     if (!clientId) { showToast('Please select a client', 'error'); return; }
     const paid = parseFloat(document.getElementById('pAmount').value);
@@ -270,8 +288,13 @@ async function savePayment() {
     };
 
     try {
-        await api.post('/payments', payment);
-        showToast('Payment recorded successfully');
+        if (id) {
+            await api.put(`/payments/${id}`, payment);
+            showToast('Payment updated successfully');
+        } else {
+            await api.post('/payments', payment);
+            showToast('Payment recorded successfully');
+        }
         closeModal('payModal');
         loadAll();
     } catch (err) {

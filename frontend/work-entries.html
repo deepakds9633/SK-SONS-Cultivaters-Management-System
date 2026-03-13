@@ -225,10 +225,20 @@ function renderTable() {
             <td class="amount-positive"><strong>${formatCurrency(e.totalCost || 0)}</strong></td>
             <td>
                 <button class="btn btn-secondary btn-sm" onclick="editEntry(${e.id})">✏️ Edit</button>
+                <button class="btn btn-sm" onclick="togglePaid(${e.id})" style="background:${e.isPaid ? '#f0fdf4' : '#fffbeb'};color:${e.isPaid ? '#16a34a' : '#d97706'};border:1px solid ${e.isPaid ? '#86efac' : '#fbbf24'};border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px;">${e.isPaid ? '✅ Paid' : '⏳ Mark Paid'}</button>
                 <button class="btn btn-danger btn-sm" onclick="promptDelete(${e.id})">🗑️</button>
             </td>
         </tr>
     `).join('');
+}
+
+async function togglePaid(id) {
+    try {
+        await api.patch(`/work-entries/${id}/toggle-paid`);
+        loadAll();
+    } catch (err) {
+        showToast('Failed to update payment status', 'error');
+    }
 }
 
 function openAddModal() {

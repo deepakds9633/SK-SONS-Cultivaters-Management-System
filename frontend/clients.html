@@ -376,8 +376,11 @@ function renderTable() {
             <td class="${pending > 0 ? 'amount-negative' : 'amount-zero'}">${formatCurrency(pending)}</td>
             <td>
                 <button class="btn btn-secondary btn-sm" onclick="editClient(${c.id})">✏️ Edit</button>
-                <button class="btn btn-primary btn-sm" onclick="generateBill(${c.id})">🧾 Bill</button>
-                ${pending > 0 ? `<button class="btn btn-success btn-sm" onclick="openPayModal(${c.id}, ${pending})" style="background:var(--success);color:#fff;">💳 Pay</button>` : '<span class="badge badge-green" style="font-size:11px;">✔ Paid</span>'}
+                ${pending > 0
+                    ? `<button class="btn btn-primary btn-sm" onclick="generateBill(${c.id})">🧾 Bill</button>
+                       <button class="btn btn-success btn-sm" onclick="openPayModal(${c.id}, ${pending})" style="background:var(--success);color:#fff;">💳 Pay</button>`
+                    : `<span class="badge badge-green" style="font-size:11px;padding:4px 8px;">✅ Cleared</span>`
+                }
                 <button class="btn btn-danger btn-sm" onclick="promptDelete(${c.id}, '${c.name}')">🗑️</button>
             </td>
         </tr>`;
@@ -438,7 +441,7 @@ async function generateBill(id) {
     } catch (e) {
         showToast('Failed to load work entries', 'error'); return;
     }
-    const entries = allEntries.filter(e => e.client?.id === id);
+    const entries = allEntries.filter(e => e.client?.id === id && !e.isPaid);
 
     // Populate invoice header
     const now = new Date();

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payments — SK SONS Cultivaters</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-layout">
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <a href="index.html" class="brand-logo">
+                <div class="brand-icon">🌾</div>
+                <div class="brand-text"><h1>SK SONS</h1><span>Cultivaters Mgmt</span></div>
+            </a>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-title">Main</div>
+            <a href="index.html" class="nav-link"><span class="nav-icon">📊</span> Dashboard</a>
+            <div class="nav-section-title">Management</div>
+            <a href="clients.html" class="nav-link"><span class="nav-icon">👨‍🌾</span> Clients</a>
+            <a href="work-entries.html" class="nav-link"><span class="nav-icon">📋</span> Work Entries</a>
+            <a href="payments.html" class="nav-link active"><span class="nav-icon">💰</span> Payments</a>
+            <div class="nav-section-title">Drivers</div>
+            <a href="drivers.html" class="nav-link"><span class="nav-icon">🧑‍✈️</span> Drivers</a>
+            <a href="attendance.html" class="nav-link"><span class="nav-icon">📅</span> Attendance & Salary</a>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="btn-logout" onclick="logout()"><span>🚪</span> Logout</button>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <header class="topbar">
+            <div class="topbar-title">💰 Payment Management</div>
+            <div class="topbar-right">
+                <span class="topbar-badge">🟢 Admin</span>
+                <span class="topbar-time" id="topbar-time"></span>
+            </div>
+        </header>
+
+        <main class="page-content">
+            <div class="breadcrumb">
+                <a href="index.html">Dashboard</a> <span>›</span> Payments
+            </div>
+
+            <!-- Summary Stats -->
+            <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom:24px;">
+                <div class="stat-card">
+                    <div class="stat-icon green">💳</div>
+                    <div class="stat-info">
+                        <div class="stat-label">Total Paid</div>
+                        <div class="stat-value" id="sumPaid" style="font-size:20px;">—</div>
+                    </div>
+                </div>
+                <div class="stat-card danger">
+                    <div class="stat-icon red">⏳</div>
+                    <div class="stat-info">
+                        <div class="stat-label">Total Pending</div>
+                        <div class="stat-value" id="sumPending" style="font-size:20px;">—</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon blue">🧾</div>
+                    <div class="stat-info">
+                        <div class="stat-label">Total Records</div>
+                        <div class="stat-value" id="sumCount">—</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <h2 class="section-title">Payment <span>Records</span></h2>
+                <button class="btn btn-primary" onclick="openAddModal()">➕ Record Payment</button>
+            </div>
+
+            <div class="table-card">
+                <div class="table-toolbar">
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" placeholder="Search payments..." oninput="filterTable('payTable', this.value)">
+                    </div>
+                    <span id="payCount" style="font-size:13px;color:var(--text-muted);">Loading...</span>
+                </div>
+                <div class="table-wrap">
+                    <table id="payTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Date</th>
+                                <th>Client</th>
+                                <th>Payment Mode</th>
+                                <th>Paid Amount</th>
+                                <th>Remaining Balance</th>
+                                <th>Remarks</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="payTableBody">
+                            <tr><td colspan="8"><div class="empty-state"><span class="empty-icon">⏳</span><p>Loading...</p></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" id="payModal">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title" id="modalTitle">Record Payment</span>
+            <button class="modal-close" onclick="closeModal('payModal')">×</button>
+        </div>
+        <div class="modal-body">
+            <form id="payForm" class="form-grid">
+                <input type="hidden" id="payId">
+                <div class="form-group">
+                    <label>Client *</label>
+                    <select id="pClient" required onchange="showClientBalance()">
+                        <option value="">-- Select Client --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Payment Date *</label>
+                    <input type="date" id="pDate" required>
+                </div>
+                <div class="form-group span-2" id="clientBalanceInfo" style="display:none;">
+                    <div class="alert alert-success" id="clientBalanceText"></div>
+                </div>
+                <div class="form-group">
+                    <label>Paid Amount (₹) *</label>
+                    <input type="number" id="pAmount" step="0.01" placeholder="Enter paid amount" required>
+                </div>
+                <div class="form-group">
+                    <label>Payment Mode</label>
+                    <select id="pMode">
+                        <option value="CASH">💵 Cash</option>
+                        <option value="UPI">📱 UPI</option>
+                        <option value="BANK_TRANSFER">🏦 Bank Transfer</option>
+                    </select>
+                </div>
+                <div class="form-group span-2">
+                    <label>Remarks</label>
+                    <textarea id="pRemarks" placeholder="Payment notes or reference number"></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('payModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="savePayment()">💾 Save Payment</button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirm -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal" style="max-width:380px;">
+        <div class="modal-header">
+            <span class="modal-title">⚠️ Confirm Delete</span>
+            <button class="modal-close" onclick="closeModal('deleteModal')">×</button>
+        </div>
+        <div class="modal-body">
+            <p style="color:var(--text-secondary);">Delete this payment? The client's balance will be updated accordingly.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('deleteModal')">Cancel</button>
+            <button class="btn btn-danger" onclick="confirmDelete()">🗑️ Delete</button>
+        </div>
+    </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+let payments = [], clients = [];
+let deleteId = null;
+
+async function loadAll() {
+    try {
+        [payments, clients] = await Promise.all([
+            api.get('/payments'),
+            api.get('/clients'),
+        ]);
+        populateClientSelect();
+        renderTable();
+        updateSummary();
+        document.getElementById('payCount').textContent = `${payments.length} payment(s)`;
+    } catch (err) {
+        showToast('Failed to load data', 'error');
+    }
+}
+
+function populateClientSelect() {
+    document.getElementById('pClient').innerHTML =
+        '<option value="">-- Select Client --</option>' +
+        clients.map(c => `<option value="${c.id}" data-charge="${c.totalCharge}" data-paid="${c.totalPaid}" data-pending="${c.pendingBalance}">${c.name} — ${c.village || ''}</option>`).join('');
+}
+
+function updateSummary() {
+    const totalPaid = payments.reduce((sum, p) => sum + (p.paidAmount || 0), 0);
+    const totalPending = clients.reduce((sum, c) => sum + (c.pendingBalance || 0), 0);
+    document.getElementById('sumPaid').textContent = formatCurrency(totalPaid);
+    document.getElementById('sumPending').textContent = formatCurrency(totalPending);
+    document.getElementById('sumCount').textContent = payments.length;
+}
+
+function renderTable() {
+    const tbody = document.getElementById('payTableBody');
+    if (!payments.length) {
+        tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state">
+            <span class="empty-icon">💰</span><p>No payments recorded yet.</p></div></td></tr>`;
+        return;
+    }
+    const modeIcon = { CASH: '💵', UPI: '📱', BANK_TRANSFER: '🏦' };
+    tbody.innerHTML = payments.map((p, i) => {
+        const remaining = p.remainingBalance || 0;
+        return `<tr>
+            <td><strong>${i+1}</strong></td>
+            <td>${formatDate(p.paymentDate)}</td>
+            <td><strong>${p.client?.name || '—'}</strong></td>
+            <td>${modeIcon[p.paymentMode] || ''} ${p.paymentMode || 'CASH'}</td>
+            <td class="amount-positive"><strong>${formatCurrency(p.paidAmount || 0)}</strong></td>
+            <td class="${remaining > 0 ? 'amount-negative' : 'amount-zero'}">${formatCurrency(remaining)}</td>
+            <td style="font-size:12px; color:var(--text-muted);">${p.remarks || '—'}</td>
+            <td>
+                <button class="btn btn-danger btn-sm" onclick="promptDelete(${p.id})">🗑️</button>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+function openAddModal() {
+    document.getElementById('modalTitle').textContent = 'Record Payment';
+    document.getElementById('payForm').reset();
+    document.getElementById('payId').value = '';
+    document.getElementById('pDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('clientBalanceInfo').style.display = 'none';
+    openModal('payModal');
+}
+
+function showClientBalance() {
+    const sel = document.getElementById('pClient');
+    const opt = sel.options[sel.selectedIndex];
+    const pending = parseFloat(opt?.dataset?.pending) || 0;
+    const charge = parseFloat(opt?.dataset?.charge) || 0;
+    const paid = parseFloat(opt?.dataset?.paid) || 0;
+    if (opt && opt.value) {
+        document.getElementById('clientBalanceText').textContent =
+            `Total Charge: ${formatCurrency(charge)} | Paid: ${formatCurrency(paid)} | Pending: ${formatCurrency(pending)}`;
+        document.getElementById('clientBalanceInfo').style.display = 'block';
+    }
+}
+
+async function savePayment() {
+    const clientId = document.getElementById('pClient').value;
+    if (!clientId) { showToast('Please select a client', 'error'); return; }
+    const paid = parseFloat(document.getElementById('pAmount').value);
+    if (!paid || paid <= 0) { showToast('Enter a valid paid amount', 'error'); return; }
+
+    const payment = {
+        client: { id: parseInt(clientId) },
+        paymentDate: document.getElementById('pDate').value,
+        paidAmount: paid,
+        paymentMode: document.getElementById('pMode').value,
+        remarks: document.getElementById('pRemarks').value,
+    };
+
+    try {
+        await api.post('/payments', payment);
+        showToast('Payment recorded successfully');
+        closeModal('payModal');
+        loadAll();
+    } catch (err) {
+        showToast('Failed: ' + err.message, 'error');
+    }
+}
+
+function promptDelete(id) {
+    deleteId = id;
+    openModal('deleteModal');
+}
+
+async function confirmDelete() {
+    try {
+        await api.delete(`/payments/${deleteId}`);
+        showToast('Payment deleted');
+        closeModal('deleteModal');
+        loadAll();
+    } catch (err) {
+        showToast('Delete failed', 'error');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', loadAll);
+</script>
+</body>
+</html>

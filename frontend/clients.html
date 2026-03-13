@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clients — SK SONS Cultivaters</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-layout">
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <a href="index.html" class="brand-logo">
+                <div class="brand-icon">🌾</div>
+                <div class="brand-text"><h1>SK SONS</h1><span>Cultivaters Mgmt</span></div>
+            </a>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-title">Main</div>
+            <a href="index.html" class="nav-link"><span class="nav-icon">📊</span> Dashboard</a>
+            <div class="nav-section-title">Management</div>
+            <a href="clients.html" class="nav-link active"><span class="nav-icon">👨‍🌾</span> Clients</a>
+            <a href="work-entries.html" class="nav-link"><span class="nav-icon">📋</span> Work Entries</a>
+            <a href="payments.html" class="nav-link"><span class="nav-icon">💰</span> Payments</a>
+            <div class="nav-section-title">Drivers</div>
+            <a href="drivers.html" class="nav-link"><span class="nav-icon">🧑‍✈️</span> Drivers</a>
+            <a href="attendance.html" class="nav-link"><span class="nav-icon">📅</span> Attendance & Salary</a>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="btn-logout" onclick="logout()"><span>🚪</span> Logout</button>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <header class="topbar">
+            <div class="topbar-title">👨‍🌾 Client Management</div>
+            <div class="topbar-right">
+                <span class="topbar-badge">🟢 Admin</span>
+                <span class="topbar-time" id="topbar-time"></span>
+            </div>
+        </header>
+
+        <main class="page-content">
+            <div class="breadcrumb">
+                <a href="index.html">Dashboard</a> <span>›</span> Clients
+            </div>
+            <div class="section-header">
+                <h2 class="section-title">Registered <span>Farmers</span></h2>
+                <button class="btn btn-primary" onclick="openAddModal()">➕ Add Client</button>
+            </div>
+
+            <div class="table-card">
+                <div class="table-toolbar">
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" placeholder="Search clients..." oninput="filterTable('clientTable', this.value)">
+                    </div>
+                    <span id="clientCount" style="font-size:13px;color:var(--text-muted);">Loading...</span>
+                </div>
+                <div class="table-wrap">
+                    <table id="clientTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th>Village</th>
+                                <th>Total Charge</th>
+                                <th>Paid</th>
+                                <th>Pending</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clientTableBody">
+                            <tr><td colspan="8"><div class="empty-state"><span class="empty-icon">⏳</span><p>Loading...</p></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" id="clientModal">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title" id="modalTitle">Add Client</span>
+            <button class="modal-close" onclick="closeModal('clientModal')">×</button>
+        </div>
+        <div class="modal-body">
+            <form id="clientForm" class="form-grid">
+                <input type="hidden" id="clientId">
+                <div class="form-group">
+                    <label>Full Name *</label>
+                    <input type="text" id="cName" placeholder="Farmer's full name" required>
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="cPhone" placeholder="Mobile number">
+                </div>
+                <div class="form-group">
+                    <label>Village / Area</label>
+                    <input type="text" id="cVillage" placeholder="Village or area name">
+                </div>
+                <div class="form-group span-2">
+                    <label>Field Details</label>
+                    <textarea id="cFieldDetails" placeholder="Land size, field location, crop type etc."></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('clientModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveClient()">💾 Save Client</button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirm -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal" style="max-width:380px;">
+        <div class="modal-header">
+            <span class="modal-title">⚠️ Confirm Delete</span>
+            <button class="modal-close" onclick="closeModal('deleteModal')">×</button>
+        </div>
+        <div class="modal-body">
+            <p style="color:var(--text-secondary);">Delete client <strong id="deleteClientName"></strong>? All related work entries and payments may be affected.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('deleteModal')">Cancel</button>
+            <button class="btn btn-danger" onclick="confirmDelete()">🗑️ Delete</button>
+        </div>
+    </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+let clients = [];
+let deleteId = null;
+
+async function loadClients() {
+    try {
+        clients = await api.get('/clients');
+        renderTable();
+        document.getElementById('clientCount').textContent = `${clients.length} client(s)`;
+    } catch (err) {
+        showToast('Failed to load clients', 'error');
+    }
+}
+
+function renderTable() {
+    const tbody = document.getElementById('clientTableBody');
+    if (!clients.length) {
+        tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state">
+            <span class="empty-icon">👨‍🌾</span><p>No clients registered yet.</p></div></td></tr>`;
+        return;
+    }
+    tbody.innerHTML = clients.map((c, i) => {
+        const pending = c.pendingBalance || 0;
+        return `<tr>
+            <td><strong>${i+1}</strong></td>
+            <td><strong>${c.name}</strong></td>
+            <td>${c.phone || '—'}</td>
+            <td>${c.village || '—'}</td>
+            <td class="amount-positive">${formatCurrency(c.totalCharge || 0)}</td>
+            <td class="amount-positive">${formatCurrency(c.totalPaid || 0)}</td>
+            <td class="${pending > 0 ? 'amount-negative' : 'amount-zero'}">${formatCurrency(pending)}</td>
+            <td>
+                <button class="btn btn-secondary btn-sm" onclick="editClient(${c.id})">✏️ Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="promptDelete(${c.id}, '${c.name}')">🗑️</button>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+function openAddModal() {
+    document.getElementById('modalTitle').textContent = 'Add Client';
+    document.getElementById('clientForm').reset();
+    document.getElementById('clientId').value = '';
+    openModal('clientModal');
+}
+
+function editClient(id) {
+    const c = clients.find(x => x.id === id);
+    if (!c) return;
+    document.getElementById('modalTitle').textContent = 'Edit Client';
+    document.getElementById('clientId').value = c.id;
+    document.getElementById('cName').value = c.name;
+    document.getElementById('cPhone').value = c.phone || '';
+    document.getElementById('cVillage').value = c.village || '';
+    document.getElementById('cFieldDetails').value = c.fieldDetails || '';
+    openModal('clientModal');
+}
+
+async function saveClient() {
+    const id = document.getElementById('clientId').value;
+    const client = {
+        name: document.getElementById('cName').value,
+        phone: document.getElementById('cPhone').value,
+        village: document.getElementById('cVillage').value,
+        fieldDetails: document.getElementById('cFieldDetails').value,
+    };
+    if (!client.name) { showToast('Client name is required', 'error'); return; }
+    try {
+        if (id) {
+            await api.put(`/clients/${id}`, client);
+            showToast('Client updated');
+        } else {
+            await api.post('/clients', client);
+            showToast('Client added');
+        }
+        closeModal('clientModal');
+        loadClients();
+    } catch (err) {
+        showToast('Failed: ' + err.message, 'error');
+    }
+}
+
+function promptDelete(id, name) {
+    deleteId = id;
+    document.getElementById('deleteClientName').textContent = name;
+    openModal('deleteModal');
+}
+
+async function confirmDelete() {
+    try {
+        await api.delete(`/clients/${deleteId}`);
+        showToast('Client deleted');
+        closeModal('deleteModal');
+        loadClients();
+    } catch (err) {
+        showToast('Delete failed: ' + err.message, 'error');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', loadClients);
+</script>
+</body>
+</html>

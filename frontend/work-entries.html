@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Entries — SK SONS Cultivaters</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-layout">
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <a href="index.html" class="brand-logo">
+                <div class="brand-icon">🌾</div>
+                <div class="brand-text"><h1>SK SONS</h1><span>Cultivaters Mgmt</span></div>
+            </a>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-title">Main</div>
+            <a href="index.html" class="nav-link"><span class="nav-icon">📊</span> Dashboard</a>
+            <div class="nav-section-title">Management</div>
+            <a href="clients.html" class="nav-link"><span class="nav-icon">👨‍🌾</span> Clients</a>
+            <a href="work-entries.html" class="nav-link active"><span class="nav-icon">📋</span> Work Entries</a>
+            <a href="payments.html" class="nav-link"><span class="nav-icon">💰</span> Payments</a>
+            <div class="nav-section-title">Drivers</div>
+            <a href="drivers.html" class="nav-link"><span class="nav-icon">🧑‍✈️</span> Drivers</a>
+            <a href="attendance.html" class="nav-link"><span class="nav-icon">📅</span> Attendance & Salary</a>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="btn-logout" onclick="logout()"><span>🚪</span> Logout</button>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <header class="topbar">
+            <div class="topbar-title">📋 Work Entry Management</div>
+            <div class="topbar-right">
+                <span class="topbar-badge">🟢 Admin</span>
+                <span class="topbar-time" id="topbar-time"></span>
+            </div>
+        </header>
+
+        <main class="page-content">
+            <div class="breadcrumb">
+                <a href="index.html">Dashboard</a> <span>›</span> Work Entries
+            </div>
+            <div class="section-header">
+                <h2 class="section-title">Cultivation <span>Work Records</span></h2>
+                <button class="btn btn-primary" onclick="openAddModal()">➕ Add Work Entry</button>
+            </div>
+
+            <div class="table-card">
+                <div class="table-toolbar">
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" placeholder="Search entries..." oninput="filterTable('workTable', this.value)">
+                    </div>
+                    <span id="workCount" style="font-size:13px;color:var(--text-muted);">Loading...</span>
+                </div>
+                <div class="table-wrap">
+                    <table id="workTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Date</th>
+                                <th>Client</th>
+                                <th>Vehicle</th>
+                                <th>Driver</th>
+                                <th>Start</th>
+                                <th>End</th>
+                                <th>Minutes</th>
+                                <th>Total Cost</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="workTableBody">
+                            <tr><td colspan="10"><div class="empty-state"><span class="empty-icon">⏳</span><p>Loading...</p></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" id="workModal">
+    <div class="modal modal-wide">
+        <div class="modal-header">
+            <span class="modal-title" id="modalTitle">Add Work Entry</span>
+            <button class="modal-close" onclick="closeModal('workModal')">×</button>
+        </div>
+        <div class="modal-body">
+            <form id="workForm" class="form-grid">
+                <input type="hidden" id="workId">
+                <div class="form-group">
+                    <label>Client *</label>
+                    <select id="wClient" required onchange="updateCostPreview()">
+                        <option value="">-- Select Client --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Vehicle *</label>
+                    <select id="wVehicle" required onchange="onVehicleChange()">
+                        <option value="">-- Select Vehicle --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Driver</label>
+                    <select id="wDriver">
+                        <option value="">-- None --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Work Date *</label>
+                    <input type="date" id="wDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Start Time</label>
+                    <input type="time" id="wStart" oninput="updateCostPreview()">
+                </div>
+                <div class="form-group">
+                    <label>End Time</label>
+                    <input type="time" id="wEnd" oninput="updateCostPreview()">
+                </div>
+                <div class="form-group">
+                    <label>Manual Cost Entry (Loader only)</label>
+                    <input type="checkbox" id="wManual" onchange="toggleManual()">
+                    <span class="form-hint">Check for Loader (Tipper) — enter cost manually</span>
+                </div>
+                <div class="form-group">
+                    <label>Total Cost (₹)</label>
+                    <input type="number" id="wCost" step="0.01" placeholder="Auto-calculated" id="wCostInput" readonly>
+                    <span class="form-hint" id="costHint" style="color:var(--primary);">Select vehicle and times to auto-calculate</span>
+                </div>
+                <div class="form-group span-2">
+                    <label>Notes</label>
+                    <textarea id="wNotes" placeholder="Additional notes (field location, crop type, etc.)"></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('workModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveWorkEntry()">💾 Save Entry</button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirm -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal" style="max-width:380px;">
+        <div class="modal-header">
+            <span class="modal-title">⚠️ Confirm Delete</span>
+            <button class="modal-close" onclick="closeModal('deleteModal')">×</button>
+        </div>
+        <div class="modal-body">
+            <p style="color:var(--text-secondary);">Delete this work entry? Client charges will be recalculated.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('deleteModal')">Cancel</button>
+            <button class="btn btn-danger" onclick="confirmDelete()">🗑️ Delete</button>
+        </div>
+    </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+let entries = [], clients = [], drivers = [], vehiclesList = [];
+let deleteId = null;
+
+async function loadAll() {
+    try {
+        [entries, clients, drivers, vehiclesList] = await Promise.all([
+            api.get('/work-entries'),
+            api.get('/clients'),
+            api.get('/drivers'),
+            api.get('/vehicles'),
+        ]);
+        populateSelects();
+        renderTable();
+        document.getElementById('workCount').textContent = `${entries.length} entry(s)`;
+    } catch (err) {
+        showToast('Failed to load data', 'error');
+    }
+}
+
+function populateSelects() {
+    const cSel = document.getElementById('wClient');
+    const vSel = document.getElementById('wVehicle');
+    const dSel = document.getElementById('wDriver');
+    cSel.innerHTML = '<option value="">-- Select Client --</option>' +
+        clients.map(c => `<option value="${c.id}">${c.name} — ${c.village || ''}</option>`).join('');
+    vSel.innerHTML = '<option value="">-- Select Vehicle --</option>' +
+        vehiclesList.map(v => `<option value="${v.id}" data-type="${v.vehicleType}" data-rate="${v.minuteCharge}">${v.name} (${v.vehicleType || ''})</option>`).join('');
+    dSel.innerHTML = '<option value="">-- None --</option>' +
+        drivers.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+}
+
+function renderTable() {
+    const tbody = document.getElementById('workTableBody');
+    if (!entries.length) {
+        tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state">
+            <span class="empty-icon">📋</span><p>No work entries yet.</p></div></td></tr>`;
+        return;
+    }
+    tbody.innerHTML = entries.map((e, i) => `
+        <tr>
+            <td><strong>${i+1}</strong></td>
+            <td>${formatDate(e.workDate)}</td>
+            <td><strong>${e.client?.name || '—'}</strong></td>
+            <td>${e.vehicle?.name || '—'}</td>
+            <td>${e.driver?.name || '—'}</td>
+            <td>${formatTime(e.startTime)}</td>
+            <td>${formatTime(e.endTime)}</td>
+            <td>${e.totalMinutes || '—'} min</td>
+            <td class="amount-positive"><strong>${formatCurrency(e.totalCost || 0)}</strong></td>
+            <td>
+                <button class="btn btn-secondary btn-sm" onclick="editEntry(${e.id})">✏️ Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="promptDelete(${e.id})">🗑️</button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function openAddModal() {
+    document.getElementById('modalTitle').textContent = 'Add Work Entry';
+    document.getElementById('workForm').reset();
+    document.getElementById('workId').value = '';
+    document.getElementById('wDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('wCost').readOnly = true;
+    document.getElementById('costHint').textContent = 'Select vehicle and times to auto-calculate';
+    openModal('workModal');
+}
+
+function editEntry(id) {
+    const e = entries.find(x => x.id === id);
+    if (!e) return;
+    document.getElementById('modalTitle').textContent = 'Edit Work Entry';
+    document.getElementById('workId').value = e.id;
+    document.getElementById('wClient').value = e.client?.id || '';
+    document.getElementById('wVehicle').value = e.vehicle?.id || '';
+    document.getElementById('wDriver').value = e.driver?.id || '';
+    document.getElementById('wDate').value = e.workDate || '';
+    document.getElementById('wStart').value = e.startTime || '';
+    document.getElementById('wEnd').value = e.endTime || '';
+    document.getElementById('wManual').checked = e.isManualCost || false;
+    document.getElementById('wCost').value = e.totalCost || '';
+    document.getElementById('wCost').readOnly = !e.isManualCost;
+    document.getElementById('wNotes').value = e.notes || '';
+    openModal('workModal');
+}
+
+function onVehicleChange() {
+    const sel = document.getElementById('wVehicle');
+    const opt = sel.options[sel.selectedIndex];
+    const type = opt?.dataset?.type;
+    if (type === 'LOADER') {
+        document.getElementById('wManual').checked = true;
+        document.getElementById('wCost').readOnly = false;
+        document.getElementById('costHint').textContent = 'Loader: Enter cost manually';
+    } else {
+        document.getElementById('wManual').checked = false;
+        document.getElementById('wCost').readOnly = true;
+    }
+    updateCostPreview();
+}
+
+function toggleManual() {
+    const manual = document.getElementById('wManual').checked;
+    document.getElementById('wCost').readOnly = !manual;
+    if (!manual) updateCostPreview();
+}
+
+function updateCostPreview() {
+    const manual = document.getElementById('wManual').checked;
+    if (manual) return;
+
+    const start = document.getElementById('wStart').value;
+    const end   = document.getElementById('wEnd').value;
+    const vSel = document.getElementById('wVehicle');
+    const opt = vSel.options[vSel.selectedIndex];
+    const rate = parseFloat(opt?.dataset?.rate) || 0;
+
+    if (start && end && rate) {
+        const [sh, sm] = start.split(':').map(Number);
+        const [eh, em] = end.split(':').map(Number);
+        let minutes = (eh * 60 + em) - (sh * 60 + sm);
+        if (minutes < 0) minutes += 24 * 60;
+        const cost = minutes * rate;
+        document.getElementById('wCost').value = cost.toFixed(2);
+        document.getElementById('costHint').textContent =
+            `${minutes} min × ₹${rate}/min = ${formatCurrency(cost)}`;
+    }
+}
+
+async function saveWorkEntry() {
+    const id = document.getElementById('workId').value;
+    const clientId = document.getElementById('wClient').value;
+    const vehicleId = document.getElementById('wVehicle').value;
+    const driverId = document.getElementById('wDriver').value;
+
+    if (!clientId || !vehicleId) { showToast('Client and Vehicle are required', 'error'); return; }
+
+    const entry = {
+        client: { id: parseInt(clientId) },
+        vehicle: { id: parseInt(vehicleId) },
+        driver: driverId ? { id: parseInt(driverId) } : null,
+        workDate: document.getElementById('wDate').value,
+        startTime: document.getElementById('wStart').value || null,
+        endTime: document.getElementById('wEnd').value || null,
+        isManualCost: document.getElementById('wManual').checked,
+        totalCost: parseFloat(document.getElementById('wCost').value) || 0,
+        notes: document.getElementById('wNotes').value,
+    };
+
+    try {
+        if (id) {
+            await api.put(`/work-entries/${id}`, entry);
+            showToast('Work entry updated');
+        } else {
+            await api.post('/work-entries', entry);
+            showToast('Work entry saved');
+        }
+        closeModal('workModal');
+        loadAll();
+    } catch (err) {
+        showToast('Failed: ' + err.message, 'error');
+    }
+}
+
+function promptDelete(id) {
+    deleteId = id;
+    openModal('deleteModal');
+}
+
+async function confirmDelete() {
+    try {
+        await api.delete(`/work-entries/${deleteId}`);
+        showToast('Entry deleted');
+        closeModal('deleteModal');
+        loadAll();
+    } catch (err) {
+        showToast('Delete failed', 'error');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', loadAll);
+</script>
+</body>
+</html>

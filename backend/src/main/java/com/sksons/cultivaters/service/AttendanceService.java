@@ -91,6 +91,10 @@ public class AttendanceService {
         return attendanceRepository.getTotalPendingSalary();
     }
 
+    public Double getTotalSalaryPaid() {
+        return attendanceRepository.getTotalSalaryPaid();
+    }
+
     private void updateDriverSalaryTotals(Long driverId) {
         driverRepository.findById(driverId).ifPresent(driver -> {
             List<Attendance> records = attendanceRepository.findByDriverId(driverId);

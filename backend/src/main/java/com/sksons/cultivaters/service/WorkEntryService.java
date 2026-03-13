@@ -20,6 +20,9 @@ public class WorkEntryService {
 
     @Autowired
     private DriverRepository driverRepository;
+    
+    @Autowired
+    private EquipmentRepository equipmentRepository;
 
 
     public List<WorkEntry> getAllWorkEntries() {
@@ -49,6 +52,9 @@ public class WorkEntryService {
         if (workEntry.getDriver() != null && workEntry.getDriver().getId() != null) {
             workEntry.setDriver(driverRepository.findById(workEntry.getDriver().getId()).orElse(workEntry.getDriver()));
         }
+        if (workEntry.getEquipment() != null && workEntry.getEquipment().getId() != null) {
+            workEntry.setEquipment(equipmentRepository.findById(workEntry.getEquipment().getId()).orElse(workEntry.getEquipment()));
+        }
 
         // Calculate total minutes from start/end time
         if (workEntry.getStartTime() != null && workEntry.getEndTime() != null) {
@@ -57,11 +63,16 @@ public class WorkEntryService {
             if (minutes < 0) minutes += 24 * 60; // handle overnight
             workEntry.setTotalMinutes((int) minutes);
 
-            // Auto-calculate cost unless it's manual (Loader/Tipper)
-            if (!Boolean.TRUE.equals(workEntry.getIsManualCost())) {
-                if (workEntry.getVehicle() != null) {
-                    double rate = workEntry.getVehicle().getMinuteCharge();
-                    workEntry.setTotalCost(minutes * rate);
+            // Auto-calculate cost based on equipment rate if not manual
+            if (!Boolean.TRUE.equals(workEntry.getIsManualCost()) && workEntry.getEquipment() != null) {
+                double hourlyRate = workEntry.getEquipment().getHourlyCharge();
+                double minuteRate = hourlyRate / 60.0;
+                
+                if (hourlyRate > 0.0) {
+                    workEntry.setTotalCost(Math.round(minutes * minuteRate * 100.0) / 100.0);
+                } else {
+                    // Default behavior if rate is 0 (e.g., Loader)
+                    workEntry.setTotalCost(0.0);
                 }
             }
         }
@@ -83,6 +94,7 @@ public class WorkEntryService {
         workEntry.setClient(workEntryDetails.getClient());
         workEntry.setVehicle(workEntryDetails.getVehicle());
         workEntry.setDriver(workEntryDetails.getDriver());
+        workEntry.setEquipment(workEntryDetails.getEquipment());
         workEntry.setWorkDate(workEntryDetails.getWorkDate());
         workEntry.setStartTime(workEntryDetails.getStartTime());
         workEntry.setEndTime(workEntryDetails.getEndTime());

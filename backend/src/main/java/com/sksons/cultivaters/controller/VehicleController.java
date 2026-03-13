@@ -40,10 +40,6 @@ public class VehicleController {
 
         vehicle.setName(vehicleDetails.getName());
         vehicle.setModelNumber(vehicleDetails.getModelNumber());
-        vehicle.setServiceDate(vehicleDetails.getServiceDate());
-        vehicle.setHourlyCharge(vehicleDetails.getHourlyCharge());
-        vehicle.setMinuteCharge(vehicleDetails.getMinuteCharge());
-        vehicle.setVehicleType(vehicleDetails.getVehicleType());
 
         return ResponseEntity.ok(vehicleService.saveVehicle(vehicle));
     }

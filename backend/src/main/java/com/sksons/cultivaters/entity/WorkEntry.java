@@ -21,6 +21,10 @@ public class WorkEntry {
     private Vehicle vehicle;
 
     @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "equipment_id")
+    private Equipment equipment;
+
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "driver_id")
     private Driver driver;
 
@@ -49,6 +53,9 @@ public class WorkEntry {
 
     public Driver getDriver() { return driver; }
     public void setDriver(Driver driver) { this.driver = driver; }
+
+    public Equipment getEquipment() { return equipment; }
+    public void setEquipment(Equipment equipment) { this.equipment = equipment; }
 
     public LocalDate getWorkDate() { return workDate; }
     public void setWorkDate(LocalDate workDate) { this.workDate = workDate; }

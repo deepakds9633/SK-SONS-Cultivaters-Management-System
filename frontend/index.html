@@ -28,6 +28,9 @@
             <a href="vehicles.html" class="nav-link">
                 <span class="nav-icon">🚜</span> Vehicles
             </a>
+            <a href="equipment.html" class="nav-link">
+                <span class="nav-icon">⚙️</span> Equipment
+            </a>
             <a href="clients.html" class="nav-link">
                 <span class="nav-icon">👨‍🌾</span> Clients
             </a>
@@ -143,6 +146,14 @@
                         <div class="stat-sub">Driver salary due</div>
                     </div>
                 </div>
+                <div class="stat-card" style="border-color: var(--primary); background: linear-gradient(135deg,rgba(34,197,94,0.08),rgba(34,197,94,0.02));">
+                    <div class="stat-icon green">🏦</div>
+                    <div class="stat-info">
+                        <div class="stat-label">Account Balance</div>
+                        <div class="stat-value" id="stat-balance" style="font-size:20px;">—</div>
+                        <div class="stat-sub">Income − Salary paid</div>
+                    </div>
+                </div>
             </div>
 
             <!-- Quick Links -->
@@ -237,6 +248,10 @@
             document.getElementById('stat-paid').textContent = formatCurrency(stats.totalPaid || 0);
             document.getElementById('stat-pending').textContent = formatCurrency(stats.totalPending || 0);
             document.getElementById('stat-salary').textContent = formatCurrency(stats.pendingSalary || 0);
+            const balance = stats.accountBalance || 0;
+            const balanceEl = document.getElementById('stat-balance');
+            balanceEl.textContent = formatCurrency(balance);
+            balanceEl.style.color = balance >= 0 ? 'var(--success)' : 'var(--danger)';
         } catch (err) {
             console.error('Failed to load stats:', err);
         }

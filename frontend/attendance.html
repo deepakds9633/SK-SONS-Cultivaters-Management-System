@@ -19,6 +19,8 @@
             <div class="nav-section-title">Main</div>
             <a href="index.html" class="nav-link"><span class="nav-icon">📊</span> Dashboard</a>
             <div class="nav-section-title">Management</div>
+            <a href="vehicles.html" class="nav-link"><span class="nav-icon">🚜</span> Vehicles</a>
+            <a href="equipment.html" class="nav-link"><span class="nav-icon">⚙️</span> Equipment</a>
             <a href="clients.html" class="nav-link"><span class="nav-icon">👨‍🌾</span> Clients</a>
             <a href="work-entries.html" class="nav-link"><span class="nav-icon">📋</span> Work Entries</a>
             <a href="payments.html" class="nav-link"><span class="nav-icon">💰</span> Payments</a>
@@ -257,6 +259,7 @@ function renderTable(records = attendance) {
             <td style="font-size:12px;color:var(--text-muted);">${a.remarks || '—'}</td>
             <td>
                 <button class="btn btn-secondary btn-sm" onclick="editAttendance(${a.id})">✏️</button>
+                ${pending > 0 ? `<button class="btn btn-primary btn-sm" onclick="payPending(${a.id}, ${a.salaryForDay})" title="Pay pending salary">💰 Pay</button>` : '<span class="badge badge-green" style="font-size:11px;">Paid</span>'}
                 <button class="btn btn-danger btn-sm" onclick="promptDelete(${a.id})">🗑️</button>
             </td>
         </tr>`;
@@ -395,6 +398,47 @@ async function saveBulkAttendance() {
 function promptDelete(id) {
     deleteId = id;
     openModal('deleteModal');
+}
+
+async function payPending(id, salary) {
+    const record = attendance.find(a => a.id === id);
+    if (!record) return;
+
+    const pending = record.pendingAmount || 0;
+    if (pending <= 0) { showToast('No pending salary to pay', 'error'); return; }
+
+    const input = prompt(
+        `Pay salary for ${record.driver?.name || 'driver'}\n` +
+        `Pending: ${formatCurrency(pending)}\n\n` +
+        `Enter amount to pay (max ${formatCurrency(pending)}):`,
+        pending.toFixed(2)
+    );
+
+    if (input === null) return; // cancelled
+    const amount = parseFloat(input);
+
+    if (isNaN(amount) || amount <= 0) {
+        showToast('Please enter a valid amount', 'error'); return;
+    }
+    if (amount > pending + 0.01) {
+        showToast(`Amount cannot exceed pending salary of ${formatCurrency(pending)}`, 'error'); return;
+    }
+
+    try {
+        const updated = {
+            driver: { id: record.driver.id },
+            date: record.date,
+            present: record.present,
+            salaryForDay: record.salaryForDay,
+            paidAmount: (record.paidAmount || 0) + amount,
+            remarks: record.remarks || '',
+        };
+        await api.put(`/attendance/${id}`, updated);
+        showToast(`₹${amount.toFixed(2)} paid to ${record.driver?.name || 'driver'}`);
+        loadAll();
+    } catch (err) {
+        showToast('Payment failed: ' + err.message, 'error');
+    }
 }
 
 async function confirmDelete() {

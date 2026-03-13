@@ -5,6 +5,95 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clients — SK SONS Cultivaters</title>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        @media print {
+            body > * { display: none !important; }
+            #printBill { display: block !important; position: static; background: white; padding: 0; margin: 0; }
+            #printBill .no-print { display: none !important; }
+        }
+        #printBill {
+            display: none;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            max-width: 820px;
+            margin: 30px auto;
+            background: #fff;
+            border: 1px solid #d1fae5;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+            padding: 0 0 24px;
+        }
+        .bill-header {
+            background: linear-gradient(135deg, #15803d, #22c55e);
+            color: white;
+            text-align: center;
+            padding: 24px 20px 18px;
+        }
+        .bill-header h1 { font-size: 26px; margin: 0 0 4px; letter-spacing: 1px; }
+        .bill-header p  { margin: 3px 0; font-size: 13px; opacity: 0.9; }
+        .bill-header .contact { font-size: 14px; font-weight: 600; margin-top: 6px; opacity: 1; letter-spacing: 0.5px; }
+        .bill-body { padding: 22px 28px 0; }
+        .bill-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            padding: 14px 18px;
+            font-size: 13px;
+            gap: 20px;
+        }
+        .bill-meta .label { color: #6b7280; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .bill-meta .value { font-weight: 700; font-size: 14px; color: #111; margin-top: 2px; }
+        .bill-divider { height: 2px; background: linear-gradient(to right, #22c55e, #86efac, #22c55e); margin: 0 28px 18px; border-radius: 2px; }
+        .bill-section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #15803d; font-weight: 700; margin: 0 28px 8px; }
+        .bill-table { width: calc(100% - 56px); margin: 0 28px 20px; border-collapse: collapse; font-size: 13px; }
+        .bill-table thead tr { background: #d1fae5; color: #000; }
+        .bill-table th { padding: 9px 11px; text-align: left; font-weight: 700; font-size: 12px; letter-spacing: 0.3px; color: #000; border-bottom: 2px solid #22c55e; }
+        .bill-table td { padding: 8px 11px; border-bottom: 1px solid #f0f0f0; color: #333; }
+        .bill-table tbody tr:nth-child(even) td { background: #f9fafb; }
+        .bill-table tbody tr:hover td { background: #f0fdf4; }
+        .bill-table td:last-child { text-align: right; font-weight: 600; }
+        .bill-table th:last-child { text-align: right; }
+        .bill-totals-wrap { margin: 0 28px 20px; display: flex; justify-content: flex-end; }
+        .bill-totals { border: 1px solid #d1fae5; border-radius: 8px; overflow: hidden; min-width: 280px; }
+        .bill-totals tr td { padding: 8px 16px; font-size: 13px; }
+        .bill-totals tr td:last-child { text-align: right; font-weight: 600; }
+        .bill-totals tr:nth-child(1) td { background: #f9fafb; color: #374151; }
+        .bill-totals tr:nth-child(2) td { background: #f0fdf4; color: #15803d; }
+        .bill-totals tr:nth-child(3) td { background: #fff; border-top: 2px solid #22c55e; color: #dc2626; font-size: 14px; font-weight: 700; padding: 10px 16px; }
+        .bill-upi {
+            margin: 0 28px 20px;
+            padding: 16px 20px;
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border: 1.5px solid #86efac;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .bill-upi h3 { color: #15803d; margin: 0 0 6px; font-size: 15px; }
+        .bill-upi .upi-num { font-size: 22px; font-weight: 800; letter-spacing: 3px; color: #16a34a; }
+        .bill-upi .upi-apps { margin: 6px 0 0; font-size: 12px; color: #6b7280; }
+        .bill-footer {
+            text-align: center;
+            margin: 0 28px;
+            font-size: 12px;
+            color: #9ca3af;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 14px;
+        }
+        .no-print-actions {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 22px;
+            padding: 0 28px;
+        }
+        .btn-print { padding: 11px 32px; background: #22c55e; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 15px; font-weight: 700; box-shadow: 0 2px 8px rgba(34,197,94,0.3); transition: background 0.2s; }
+        .btn-print:hover { background: #16a34a; }
+        .btn-close-bill { padding: 11px 22px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; cursor: pointer; font-size: 14px; transition: background 0.2s; }
+        .btn-close-bill:hover { background: #e2e8f0; }
+    </style>
 </head>
 <body>
 <div class="app-layout">
@@ -19,6 +108,8 @@
             <div class="nav-section-title">Main</div>
             <a href="index.html" class="nav-link"><span class="nav-icon">📊</span> Dashboard</a>
             <div class="nav-section-title">Management</div>
+            <a href="vehicles.html" class="nav-link"><span class="nav-icon">🚜</span> Vehicles</a>
+            <a href="equipment.html" class="nav-link"><span class="nav-icon">⚙️</span> Equipment</a>
             <a href="clients.html" class="nav-link active"><span class="nav-icon">👨‍🌾</span> Clients</a>
             <a href="work-entries.html" class="nav-link"><span class="nav-icon">📋</span> Work Entries</a>
             <a href="payments.html" class="nav-link"><span class="nav-icon">💰</span> Payments</a>
@@ -133,6 +224,124 @@
     </div>
 </div>
 
+<!-- Pay Client Modal -->
+<div class="modal-overlay" id="payModal">
+    <div class="modal" style="max-width:420px;">
+        <div class="modal-header">
+            <span class="modal-title">💳 Record Payment</span>
+            <button class="modal-close" onclick="closeModal('payModal')">×</button>
+        </div>
+        <div class="modal-body">
+            <p style="margin:0 0 14px;color:var(--text-secondary);font-size:13px;">
+                Client: <strong id="payClientLabel"></strong> &nbsp;|&nbsp; Pending: <strong id="payPendingLabel" style="color:var(--danger);"></strong>
+            </p>
+            <form id="payForm" class="form-grid">
+                <div class="form-group">
+                    <label>Amount to Pay *</label>
+                    <input type="number" id="payAmount" placeholder="Enter amount" min="1" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Payment Mode</label>
+                    <select id="payMode">
+                        <option value="UPI">UPI / GPay</option>
+                        <option value="Cash">Cash</option>
+                        <option value="Bank Transfer">Bank Transfer</option>
+                        <option value="Cheque">Cheque</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group span-2">
+                    <label>Remarks</label>
+                    <input type="text" id="payRemarks" placeholder="Optional note">
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('payModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="savePayment()">💾 Record Payment</button>
+        </div>
+    </div>
+</div>
+
+<!-- Bill Print View -->
+<div id="printBill">
+    <!-- Company Header -->
+    <div class="bill-header">
+        <h1>🌾 SK SONS CULTIVATERS</h1>
+        <p>Agricultural Machinery Services &mdash; Namakkal</p>
+        <p class="contact">📞 9677628533</p>
+        <p id="billDate" style="margin-top:8px; font-size:12px; opacity:0.85;"></p>
+    </div>
+
+    <div class="bill-body">
+        <!-- Client + Invoice Info -->
+        <div class="bill-meta">
+            <div>
+                <div class="label">Billed To</div>
+                <div class="value" id="billClientName"></div>
+                <div style="color:#555; margin-top:4px; font-size:13px;">
+                    <span id="billClientPhone"></span><br>
+                    <span id="billClientVillage"></span>
+                </div>
+            </div>
+            <div style="text-align:right;">
+                <div class="label">Invoice No.</div>
+                <div class="value" id="billInvoiceNo"></div>
+                <div style="color:#555; margin-top:4px; font-size:12px;">
+                    Field: <span id="billField" style="font-style:italic;"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="bill-divider"></div>
+    <div class="bill-section-title">Service Details</div>
+
+    <!-- Work Entries Table -->
+    <table class="bill-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Date</th>
+                <th>Vehicle</th>
+                <th>Equipment</th>
+                <th>Driver</th>
+                <th>Duration</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody id="billWorkRows"></tbody>
+    </table>
+
+    <!-- Totals -->
+    <div class="bill-totals-wrap">
+        <table class="bill-totals">
+            <tr><td>Total Service Charge</td><td id="billTotal"></td></tr>
+            <tr><td>Amount Paid ✅</td><td id="billPaid"></td></tr>
+            <tr><td>Pending Balance ⚠️</td><td id="billPending"></td></tr>
+        </table>
+    </div>
+
+    <!-- UPI Payment -->
+    <div class="bill-upi">
+        <h3>📲 Pay via UPI / Google Pay</h3>
+        <div class="upi-num">9677628533</div>
+        <p class="upi-apps">Google Pay &middot; PhonePe &middot; Paytm &middot; Any UPI App</p>
+    </div>
+
+    <!-- Footer -->
+    <div class="bill-footer">
+        <p>Thank you for choosing <strong>SK SONS Cultivaters</strong>! &nbsp;|&nbsp; Computer-generated invoice.</p>
+    </div>
+
+    <!-- Actions (hidden on print) -->
+    <div class="no-print no-print-actions">
+        <button class="btn-print" onclick="window.print()">🖨️ Print Bill</button>
+        <button class="btn-close-bill" onclick="document.getElementById('printBill').style.display='none';">✕ Close</button>
+    </div>
+</div>
+
 <script src="js/api.js"></script>
 <script>
 let clients = [];
@@ -167,6 +376,8 @@ function renderTable() {
             <td class="${pending > 0 ? 'amount-negative' : 'amount-zero'}">${formatCurrency(pending)}</td>
             <td>
                 <button class="btn btn-secondary btn-sm" onclick="editClient(${c.id})">✏️ Edit</button>
+                <button class="btn btn-primary btn-sm" onclick="generateBill(${c.id})">🧾 Bill</button>
+                ${pending > 0 ? `<button class="btn btn-success btn-sm" onclick="openPayModal(${c.id}, ${pending})" style="background:var(--success);color:#fff;">💳 Pay</button>` : '<span class="badge badge-green" style="font-size:11px;">✔ Paid</span>'}
                 <button class="btn btn-danger btn-sm" onclick="promptDelete(${c.id}, '${c.name}')">🗑️</button>
             </td>
         </tr>`;
@@ -213,6 +424,101 @@ async function saveClient() {
         loadClients();
     } catch (err) {
         showToast('Failed: ' + err.message, 'error');
+    }
+}
+
+async function generateBill(id) {
+    const c = clients.find(x => x.id === id);
+    if (!c) return;
+
+    // Fetch all work entries and filter for this client
+    let allEntries = [];
+    try {
+        allEntries = await api.get('/work-entries');
+    } catch (e) {
+        showToast('Failed to load work entries', 'error'); return;
+    }
+    const entries = allEntries.filter(e => e.client?.id === id);
+
+    // Populate invoice header
+    const now = new Date();
+    document.getElementById('billDate').textContent =
+        `Date: ${now.toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' })}`;
+    document.getElementById('billClientName').textContent = c.name;
+    document.getElementById('billClientPhone').textContent = c.phone ? `📞 ${c.phone}` : '';
+    document.getElementById('billClientVillage').textContent = c.village ? `📍 ${c.village}` : '';
+    document.getElementById('billInvoiceNo').textContent = `INV-${String(id).padStart(4,'0')}-${now.getFullYear()}`;
+    document.getElementById('billField').textContent = c.fieldDetails || '—';
+
+    // Populate work entries table
+    const tbody = document.getElementById('billWorkRows');
+    if (!entries.length) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#aaa;padding:16px;">No work entries found for this client.</td></tr>`;
+    } else {
+        tbody.innerHTML = entries.map((e, i) => {
+            const mins = e.totalMinutes || 0;
+            const hrs  = Math.floor(mins / 60);
+            const rem  = mins % 60;
+            const dur  = hrs > 0 ? `${hrs}h ${rem}m` : `${rem}m`;
+            return `<tr>
+                <td>${i + 1}</td>
+                <td>${e.workDate || '—'}</td>
+                <td>${e.vehicle?.name || '—'}</td>
+                <td>${e.equipment?.name || '—'}</td>
+                <td>${e.driver?.name || '—'}</td>
+                <td>${dur}</td>
+                <td style="text-align:right;font-weight:600;">₹${(e.totalCost || 0).toFixed(2)}</td>
+            </tr>`;
+        }).join('');
+    }
+
+    // Populate totals
+    document.getElementById('billTotal').textContent   = `₹${(c.totalCharge   || 0).toFixed(2)}`;
+    document.getElementById('billPaid').textContent    = `₹${(c.totalPaid     || 0).toFixed(2)}`;
+    document.getElementById('billPending').textContent = `₹${(c.pendingBalance|| 0).toFixed(2)}`;
+
+    // Show the bill panel
+    document.getElementById('printBill').style.display = 'block';
+    document.getElementById('printBill').scrollIntoView({ behavior: 'smooth' });
+}
+
+let payClientId = null;
+let payClientPending = 0;
+
+function openPayModal(id, pending) {
+    const c = clients.find(x => x.id === id);
+    if (!c) return;
+    payClientId = id;
+    payClientPending = pending;
+    document.getElementById('payClientLabel').textContent = c.name;
+    document.getElementById('payPendingLabel').textContent = formatCurrency(pending);
+    document.getElementById('payAmount').value = pending.toFixed(2);
+    document.getElementById('payMode').value = 'UPI';
+    document.getElementById('payRemarks').value = '';
+    openModal('payModal');
+}
+
+async function savePayment() {
+    const amount = parseFloat(document.getElementById('payAmount').value);
+    if (isNaN(amount) || amount <= 0) { showToast('Enter a valid amount', 'error'); return; }
+    if (amount > payClientPending + 0.01) {
+        showToast(`Amount cannot exceed pending balance of ${formatCurrency(payClientPending)}`, 'error'); return;
+    }
+    const payment = {
+        client: { id: payClientId },
+        paymentDate: new Date().toISOString().split('T')[0],
+        paidAmount: amount,
+        remainingBalance: Math.max(0, payClientPending - amount),
+        paymentMode: document.getElementById('payMode').value,
+        remarks: document.getElementById('payRemarks').value || '',
+    };
+    try {
+        await api.post('/payments', payment);
+        showToast(`Payment of ${formatCurrency(amount)} recorded!`);
+        closeModal('payModal');
+        loadClients();
+    } catch (err) {
+        showToast('Payment failed: ' + err.message, 'error');
     }
 }
 

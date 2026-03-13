@@ -1,4 +1,6 @@
 C:\Users\WELCOME\Desktop\sksons-cultivaters\backend\src\main\java\com\sksons\cultivaters\controller\DashboardController.java
+C:\Users\WELCOME\Desktop\sksons-cultivaters\backend\src\main\java\com\sksons\cultivaters\repository\EquipmentRepository.java
+C:\Users\WELCOME\Desktop\sksons-cultivaters\backend\src\main\java\com\sksons\cultivaters\controller\EquipmentController.java
 C:\Users\WELCOME\Desktop\sksons-cultivaters\backend\src\main\java\com\sksons\cultivaters\config\WebConfig.java
 C:\Users\WELCOME\Desktop\sksons-cultivaters\backend\src\main\java\com\sksons\cultivaters\service\AttendanceService.java
 C:\Users\WELCOME\Desktop\sksons-cultivaters\backend\src\main\java\com\sksons\cultivaters\service\PaymentService.java
@@ -23,6 +25,8 @@ C:\Users\WELCOME\Desktop\sksons-cultivaters\backend\src\main\java\com\sksons\cul
 C:\Users\WELCOME\Desktop\sksons-cultivaters\backend\src\main\java\com\sksons\cultivaters\entity\Client.java
 C:\Users\WELCOME\Desktop\sksons-cultivaters\backend\src\main\java\com\sksons\cultivaters\service\WorkEntryService.java
 C:\Users\WELCOME\Desktop\sksons-cultivaters\backend\src\main\java\com\sksons\cultivaters\controller\WorkEntryController.java
+C:\Users\WELCOME\Desktop\sksons-cultivaters\backend\src\main\java\com\sksons\cultivaters\service\EquipmentService.java
 C:\Users\WELCOME\Desktop\sksons-cultivaters\backend\src\main\java\com\sksons\cultivaters\repository\WorkEntryRepository.java
+C:\Users\WELCOME\Desktop\sksons-cultivaters\backend\src\main\java\com\sksons\cultivaters\entity\Equipment.java
 C:\Users\WELCOME\Desktop\sksons-cultivaters\backend\src\main\java\com\sksons\cultivaters\repository\VehicleRepository.java
 C:\Users\WELCOME\Desktop\sksons-cultivaters\backend\src\main\java\com\sksons\cultivaters\CultivatersApplication.java

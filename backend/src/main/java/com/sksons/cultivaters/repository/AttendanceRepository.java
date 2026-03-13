@@ -18,4 +18,7 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
 
     @Query("SELECT COALESCE(SUM(a.pendingAmount), 0) FROM Attendance a WHERE a.pendingAmount > 0")
     Double getTotalPendingSalary();
+
+    @Query("SELECT COALESCE(SUM(a.paidAmount), 0) FROM Attendance a")
+    Double getTotalSalaryPaid();
 }

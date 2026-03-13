@@ -20,6 +20,7 @@
             <a href="index.html" class="nav-link"><span class="nav-icon">📊</span> Dashboard</a>
             <div class="nav-section-title">Management</div>
             <a href="vehicles.html" class="nav-link active"><span class="nav-icon">🚜</span> Vehicles</a>
+            <a href="equipment.html" class="nav-link"><span class="nav-icon">⚙️</span> Equipment</a>
             <a href="clients.html" class="nav-link"><span class="nav-icon">👨‍🌾</span> Clients</a>
             <a href="work-entries.html" class="nav-link"><span class="nav-icon">📋</span> Work Entries</a>
             <a href="payments.html" class="nav-link"><span class="nav-icon">💰</span> Payments</a>
@@ -65,10 +66,7 @@
                                 <th>#</th>
                                 <th>Image</th>
                                 <th>Name</th>
-                                <th>Type</th>
                                 <th>Model No.</th>
-                                <th>Hourly Rate</th>
-                                <th>Minute Rate</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -92,34 +90,14 @@
         <div class="modal-body">
             <form id="vehicleForm" class="form-grid">
                 <input type="hidden" id="vehicleId">
-                <div class="form-group">
+                <div class="form-group span-2">
                     <label>Vehicle Name *</label>
-                    <input type="text" id="vName" placeholder="e.g. John Deere 5310" required>
+                    <input type="text" id="vName" placeholder="e.g. John Deere 5310 Rotavator" required>
+                    <span class="form-hint">Include the machine type (Rotavator, Cultivator, Loader) for auto-calculation.</span>
                 </div>
-                <div class="form-group">
-                    <label>Vehicle Type *</label>
-                    <select id="vType" required>
-                        <option value="ROTAVATOR">Rotavator</option>
-                        <option value="CULTIVATOR">9-Tine Cultivator</option>
-                        <option value="HALFCAGE">Half Cage Wheel</option>
-                        <option value="LOADER">Loader (Tipper)</option>
-                    </select>
-                </div>
-                <div class="form-group">
+                <div class="form-group span-2">
                     <label>Model Number</label>
                     <input type="text" id="vModel" placeholder="e.g. 2023-V2">
-                </div>
-                <div class="form-group">
-                    <label>Service Date</label>
-                    <input type="date" id="vService">
-                </div>
-                <div class="form-group">
-                    <label>Hourly Charge (₹) *</label>
-                    <input type="number" id="vHourly" step="0.01" value="0.00" required>
-                </div>
-                <div class="form-group">
-                    <label>Minute Charge (₹) *</label>
-                    <input type="number" id="vMinute" step="0.01" value="0.00" required>
                 </div>
                 <div class="form-group span-2">
                     <label>Vehicle Image</label>
@@ -186,10 +164,7 @@ function renderTable() {
             <td><strong>${i+1}</strong></td>
             <td><img src="${imgSrc}" style="width:48px;height:36px;object-fit:cover;border-radius:4px;border:1px solid var(--border-light);" onerror="this.src='data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'40\' height=\'30\'><rect width=\'100%\' height=\'100%\' fill=\'%23fee\'/></svg>'"></td>
             <td><strong>${v.name}</strong></td>
-            <td><span class="badge badge-blue">${v.vehicleType || '—'}</span></td>
             <td>${v.modelNumber || '—'}</td>
-            <td class="amount-positive">${formatCurrency(v.hourlyCharge || 0)}/hr</td>
-            <td class="amount-positive">${formatCurrency(v.minuteCharge || 0)}/min</td>
             <td>
                 <button class="btn btn-secondary btn-sm" onclick="editVehicle(${v.id})">✏️</button>
                 <button class="btn btn-danger btn-sm" onclick="promptDelete(${v.id}, '${v.name}')">🗑️</button>
@@ -212,11 +187,7 @@ function editVehicle(id) {
     document.getElementById('modalTitle').textContent = 'Edit Vehicle';
     document.getElementById('vehicleId').value = v.id;
     document.getElementById('vName').value = v.name;
-    document.getElementById('vType').value = v.vehicleType || 'ROTAVATOR';
     document.getElementById('vModel').value = v.modelNumber || '';
-    document.getElementById('vService').value = v.serviceDate || '';
-    document.getElementById('vHourly').value = v.hourlyCharge || 0;
-    document.getElementById('vMinute').value = v.minuteCharge || 0;
     
     if (v.imagePath) {
         document.getElementById('vImagePreview').innerHTML = `<img src="http://localhost:8080${v.imagePath}" style="width:100%;height:100%;object-fit:cover;">`;
@@ -231,11 +202,7 @@ async function saveVehicle() {
     const id = document.getElementById('vehicleId').value;
     const vehicle = {
         name: document.getElementById('vName').value,
-        vehicleType: document.getElementById('vType').value,
         modelNumber: document.getElementById('vModel').value,
-        serviceDate: document.getElementById('vService').value || null,
-        hourlyCharge: parseFloat(document.getElementById('vHourly').value) || 0,
-        minuteCharge: parseFloat(document.getElementById('vMinute').value) || 0,
     };
 
     if (!vehicle.name) { showToast('Vehicle name is required', 'error'); return; }

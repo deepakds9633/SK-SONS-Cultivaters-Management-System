@@ -36,6 +36,11 @@ public class DashboardController {
         stats.put("totalPaid", paymentService.getTotalPaid());
         stats.put("totalPending", paymentService.getTotalPending());
         stats.put("pendingSalary", attendanceService.getTotalPendingSalary());
+
+        double totalIncome = workEntryService.getTotalIncome() != null ? workEntryService.getTotalIncome() : 0.0;
+        double totalSalaryPaid = attendanceService.getTotalSalaryPaid() != null ? attendanceService.getTotalSalaryPaid() : 0.0;
+        stats.put("accountBalance", totalIncome - totalSalaryPaid);
+
         return stats;
     }
 

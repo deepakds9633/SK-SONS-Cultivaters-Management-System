@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equipment — SK SONS Cultivaters</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <a href="index.html" class="brand-logo">
+                <div class="brand-icon">🌾</div>
+                <div class="brand-text">
+                    <h1>SK SONS</h1>
+                    <span>Cultivaters Mgmt</span>
+                </div>
+            </a>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-title">Main</div>
+            <a href="index.html" class="nav-link">
+                <span class="nav-icon">📊</span> Dashboard
+            </a>
+            <div class="nav-section-title">Management</div>
+            <a href="vehicles.html" class="nav-link">
+                <span class="nav-icon">🚜</span> Vehicles
+            </a>
+            <a href="equipment.html" class="nav-link active">
+                <span class="nav-icon">⚙️</span> Equipment
+            </a>
+            <a href="clients.html" class="nav-link">
+                <span class="nav-icon">👨‍🌾</span> Clients
+            </a>
+            <a href="work-entries.html" class="nav-link">
+                <span class="nav-icon">📋</span> Work Entries
+            </a>
+            <a href="payments.html" class="nav-link">
+                <span class="nav-icon">💰</span> Payments
+            </a>
+            <div class="nav-section-title">Drivers</div>
+            <a href="drivers.html" class="nav-link">
+                <span class="nav-icon">🧑‍✈️</span> Drivers
+            </a>
+            <a href="attendance.html" class="nav-link">
+                <span class="nav-icon">📅</span> Attendance & Salary
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="btn-logout" onclick="logout()">
+                <span>🚪</span> Logout
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <header class="topbar">
+            <div class="topbar-title">⚙️ Equipment Management</div>
+            <div class="topbar-right">
+                <span class="topbar-badge">🟢 Admin</span>
+                <span class="topbar-time" id="topbar-time"></span>
+            </div>
+        </header>
+
+        <main class="page-content">
+            <div class="breadcrumb">
+                <a href="index.html">Dashboard</a> <span>›</span> Equipment
+            </div>
+            
+            <div class="section-header">
+                <h2 class="section-title">Agricultural <span>Implements</span></h2>
+                <button class="btn btn-primary" onclick="openAddModal()">➕ Add Equipment</button>
+            </div>
+
+            <div class="table-card">
+                <div class="table-toolbar">
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" placeholder="Search equipment..." oninput="filterTable('eqTable', this.value)">
+                    </div>
+                </div>
+                <div class="table-wrap">
+                    <table id="eqTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Equipment Name</th>
+                                <th>Charge (per Hour)</th>
+                                <th>Charge (per Minute)</th>
+                                <th style="text-align:right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="eqTableBody">
+                            <tr><td colspan="5"><div class="empty-state"><span class="empty-icon">⏳</span><p>Loading...</p></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" id="eqModal">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title" id="modalTitle">Add Equipment</span>
+            <button class="modal-close" onclick="closeModal('eqModal')">×</button>
+        </div>
+        <div class="modal-body">
+            <form id="eqForm" class="form-grid">
+                <input type="hidden" id="eqId">
+                <div class="form-group span-2">
+                    <label>Equipment Name *</label>
+                    <input type="text" id="eqName" placeholder="e.g. Rotavator, 9-Tine Cultivator" required>
+                </div>
+                <div class="form-group span-2">
+                    <label>Hourly Charge (₹) *</label>
+                    <input type="number" id="eqCharge" step="0.01" placeholder="e.g. 1200" required>
+                    <span class="form-hint" style="color:var(--text-muted); font-size:12px; margin-top:4px; display:block;" id="minutePreview">Equals ₹0.00 / min</span>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('eqModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveEquipment()">💾 Save Equipment</button>
+        </div>
+    </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+let equipmentList = [];
+
+async function loadEquipment() {
+    try {
+        equipmentList = await api.get('/equipment');
+        renderTable();
+    } catch (err) {
+        showToast('Failed to load equipment', 'error');
+    }
+}
+
+function renderTable() {
+    const tbody = document.getElementById('eqTableBody');
+    if (!equipmentList || equipmentList.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state">
+            <span class="empty-icon">⚙️</span><p>No equipment added yet.</p></div></td></tr>`;
+        return;
+    }
+    
+    tbody.innerHTML = equipmentList.map((e, index) => {
+        const hourly = e.hourlyCharge || 0;
+        const minute = hourly / 60;
+        return `
+        <tr>
+            <td><strong>${index + 1}</strong></td>
+            <td><strong>${e.name || '—'}</strong></td>
+            <td class="amount-positive">₹${hourly.toFixed(2)} / hr</td>
+            <td style="color:var(--text-secondary);">₹${minute.toFixed(2)} / min</td>
+            <td style="text-align:right;">
+                <button class="btn btn-secondary btn-sm" onclick="editEquipment(${e.id})">✏️ Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteEquipment(${e.id})">🗑️</button>
+            </td>
+        </tr>
+    `}).join('');
+}
+
+document.getElementById('eqCharge').addEventListener('input', function() {
+    const hourly = parseFloat(this.value) || 0;
+    const min = hourly / 60;
+    document.getElementById('minutePreview').textContent = `Equals ₹${min.toFixed(2)} / min`;
+});
+
+function openAddModal() {
+    document.getElementById('modalTitle').textContent = 'Add Equipment';
+    document.getElementById('eqForm').reset();
+    document.getElementById('eqId').value = '';
+    document.getElementById('minutePreview').textContent = `Equals ₹0.00 / min`;
+    openModal('eqModal');
+}
+
+function editEquipment(id) {
+    const e = equipmentList.find(x => x.id === id);
+    if (!e) return;
+    document.getElementById('modalTitle').textContent = 'Edit Equipment';
+    document.getElementById('eqId').value = e.id;
+    document.getElementById('eqName').value = e.name;
+    document.getElementById('eqCharge').value = e.hourlyCharge;
+    
+    const min = (e.hourlyCharge || 0) / 60;
+    document.getElementById('minutePreview').textContent = `Equals ₹${min.toFixed(2)} / min`;
+    openModal('eqModal');
+}
+
+async function saveEquipment() {
+    const id = document.getElementById('eqId').value;
+    const data = {
+        name: document.getElementById('eqName').value,
+        hourlyCharge: parseFloat(document.getElementById('eqCharge').value) || 0
+    };
+
+    if (!data.name) {
+        showToast('Equipment Name is required', 'error');
+        return;
+    }
+
+    try {
+        if (id) {
+            await api.put(`/equipment/${id}`, data);
+            showToast('Equipment updated successfully');
+        } else {
+            await api.post('/equipment', data);
+            showToast('Equipment added successfully');
+        }
+        closeModal('eqModal');
+        loadEquipment();
+    } catch (err) {
+        showToast('Operation failed', 'error');
+    }
+}
+
+async function deleteEquipment(id) {
+    if (!confirm('Are you sure you want to delete this equipment?')) return;
+    try {
+        await api.delete(`/equipment/${id}`);
+        showToast('Equipment deleted');
+        loadEquipment();
+    } catch (err) {
+        showToast('Delete failed', 'error');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', loadEquipment);
+</script>
+</body>
+</html>

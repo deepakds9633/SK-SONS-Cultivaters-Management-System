@@ -19,6 +19,8 @@
             <div class="nav-section-title">Main</div>
             <a href="index.html" class="nav-link"><span class="nav-icon">📊</span> Dashboard</a>
             <div class="nav-section-title">Management</div>
+            <a href="vehicles.html" class="nav-link"><span class="nav-icon">🚜</span> Vehicles</a>
+            <a href="equipment.html" class="nav-link"><span class="nav-icon">⚙️</span> Equipment</a>
             <a href="clients.html" class="nav-link"><span class="nav-icon">👨‍🌾</span> Clients</a>
             <a href="work-entries.html" class="nav-link active"><span class="nav-icon">📋</span> Work Entries</a>
             <a href="payments.html" class="nav-link"><span class="nav-icon">💰</span> Payments</a>
@@ -65,6 +67,7 @@
                                 <th>Date</th>
                                 <th>Client</th>
                                 <th>Vehicle</th>
+                                <th>Equipment</th>
                                 <th>Driver</th>
                                 <th>Start</th>
                                 <th>End</th>
@@ -74,7 +77,7 @@
                             </tr>
                         </thead>
                         <tbody id="workTableBody">
-                            <tr><td colspan="10"><div class="empty-state"><span class="empty-icon">⏳</span><p>Loading...</p></div></td></tr>
+                            <tr><td colspan="11"><div class="empty-state"><span class="empty-icon">⏳</span><p>Loading...</p></div></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -100,9 +103,15 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Vehicle *</label>
-                    <select id="wVehicle" required onchange="onVehicleChange()">
+                    <label>Vehicle (Tractor) *</label>
+                    <select id="wVehicle" required>
                         <option value="">-- Select Vehicle --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Equipment (Implement) *</label>
+                    <select id="wEquipment" required onchange="updateCostPreview()">
+                        <option value="">-- Select Equipment --</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -122,11 +131,6 @@
                 <div class="form-group">
                     <label>End Time</label>
                     <input type="time" id="wEnd" oninput="updateCostPreview()">
-                </div>
-                <div class="form-group">
-                    <label>Manual Cost Entry (Loader only)</label>
-                    <input type="checkbox" id="wManual" onchange="toggleManual()">
-                    <span class="form-hint">Check for Loader (Tipper) — enter cost manually</span>
                 </div>
                 <div class="form-group">
                     <label>Total Cost (₹)</label>
@@ -165,16 +169,17 @@
 
 <script src="js/api.js"></script>
 <script>
-let entries = [], clients = [], drivers = [], vehiclesList = [];
+let entries = [], clients = [], drivers = [], vehiclesList = [], equipmentList = [];
 let deleteId = null;
 
 async function loadAll() {
     try {
-        [entries, clients, drivers, vehiclesList] = await Promise.all([
+        [entries, clients, drivers, vehiclesList, equipmentList] = await Promise.all([
             api.get('/work-entries'),
             api.get('/clients'),
             api.get('/drivers'),
             api.get('/vehicles'),
+            api.get('/equipment')
         ]);
         populateSelects();
         renderTable();
@@ -187,11 +192,14 @@ async function loadAll() {
 function populateSelects() {
     const cSel = document.getElementById('wClient');
     const vSel = document.getElementById('wVehicle');
+    const eSel = document.getElementById('wEquipment');
     const dSel = document.getElementById('wDriver');
     cSel.innerHTML = '<option value="">-- Select Client --</option>' +
         clients.map(c => `<option value="${c.id}">${c.name} — ${c.village || ''}</option>`).join('');
     vSel.innerHTML = '<option value="">-- Select Vehicle --</option>' +
-        vehiclesList.map(v => `<option value="${v.id}" data-type="${v.vehicleType}" data-rate="${v.minuteCharge}">${v.name} (${v.vehicleType || ''})</option>`).join('');
+        vehiclesList.map(v => `<option value="${v.id}">${v.name} ${v.modelNumber ? '('+v.modelNumber+')' : ''}</option>`).join('');
+    eSel.innerHTML = '<option value="">-- Select Equipment --</option>' +
+        equipmentList.map(e => `<option value="${e.id}" data-rate="${e.hourlyCharge/60}" data-name="${(e.name || '').toLowerCase()}">${e.name} (₹${e.hourlyCharge}/hr)</option>`).join('');
     dSel.innerHTML = '<option value="">-- None --</option>' +
         drivers.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
 }
@@ -199,7 +207,7 @@ function populateSelects() {
 function renderTable() {
     const tbody = document.getElementById('workTableBody');
     if (!entries.length) {
-        tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state">
+        tbody.innerHTML = `<tr><td colspan="11"><div class="empty-state">
             <span class="empty-icon">📋</span><p>No work entries yet.</p></div></td></tr>`;
         return;
     }
@@ -209,6 +217,7 @@ function renderTable() {
             <td>${formatDate(e.workDate)}</td>
             <td><strong>${e.client?.name || '—'}</strong></td>
             <td>${e.vehicle?.name || '—'}</td>
+            <td>${e.equipment?.name || '—'}</td>
             <td>${e.driver?.name || '—'}</td>
             <td>${formatTime(e.startTime)}</td>
             <td>${formatTime(e.endTime)}</td>
@@ -228,6 +237,7 @@ function openAddModal() {
     document.getElementById('workId').value = '';
     document.getElementById('wDate').value = new Date().toISOString().split('T')[0];
     document.getElementById('wCost').readOnly = true;
+    document.getElementById('wCost').value = '';
     document.getElementById('costHint').textContent = 'Select vehicle and times to auto-calculate';
     openModal('workModal');
 }
@@ -239,57 +249,58 @@ function editEntry(id) {
     document.getElementById('workId').value = e.id;
     document.getElementById('wClient').value = e.client?.id || '';
     document.getElementById('wVehicle').value = e.vehicle?.id || '';
+    document.getElementById('wEquipment').value = e.equipment?.id || '';
     document.getElementById('wDriver').value = e.driver?.id || '';
     document.getElementById('wDate').value = e.workDate || '';
     document.getElementById('wStart').value = e.startTime || '';
     document.getElementById('wEnd').value = e.endTime || '';
-    document.getElementById('wManual').checked = e.isManualCost || false;
+    
+    // Check if it should be manual or readonly based on equipment name
+    const eName = (e.equipment?.name || '').toLowerCase();
+    const isManual = e.isManualCost || eName.includes('loader');
+    
     document.getElementById('wCost').value = e.totalCost || '';
-    document.getElementById('wCost').readOnly = !e.isManualCost;
+    document.getElementById('wCost').readOnly = !isManual;
+    document.getElementById('costHint').textContent = isManual ? 'Loader: Enter cost manually' : 'Auto-calculated';
+    
     document.getElementById('wNotes').value = e.notes || '';
     openModal('workModal');
 }
 
-function onVehicleChange() {
-    const sel = document.getElementById('wVehicle');
-    const opt = sel.options[sel.selectedIndex];
-    const type = opt?.dataset?.type;
-    if (type === 'LOADER') {
-        document.getElementById('wManual').checked = true;
-        document.getElementById('wCost').readOnly = false;
-        document.getElementById('costHint').textContent = 'Loader: Enter cost manually';
-    } else {
-        document.getElementById('wManual').checked = false;
-        document.getElementById('wCost').readOnly = true;
-    }
-    updateCostPreview();
-}
-
-function toggleManual() {
-    const manual = document.getElementById('wManual').checked;
-    document.getElementById('wCost').readOnly = !manual;
-    if (!manual) updateCostPreview();
-}
-
 function updateCostPreview() {
-    const manual = document.getElementById('wManual').checked;
-    if (manual) return;
-
     const start = document.getElementById('wStart').value;
     const end   = document.getElementById('wEnd').value;
-    const vSel = document.getElementById('wVehicle');
-    const opt = vSel.options[vSel.selectedIndex];
-    const rate = parseFloat(opt?.dataset?.rate) || 0;
+    const eSel = document.getElementById('wEquipment');
+    const opt = eSel.options[eSel.selectedIndex];
+    
+    if (!opt || opt.value === "") return;
+    
+    const eName = opt.dataset.name || '';
+    const rate = parseFloat(opt.dataset.rate) || 0;
+    
+    const costInput = document.getElementById('wCost');
+    const costHint = document.getElementById('costHint');
 
-    if (start && end && rate) {
+    if (eName.includes('loader') || rate === 0) {
+        costInput.readOnly = false;
+        costHint.textContent = 'Loader/Unknown: Enter cost manually';
+        return;
+    }
+
+    costInput.readOnly = true;
+
+    if (start && end && rate > 0) {
         const [sh, sm] = start.split(':').map(Number);
         const [eh, em] = end.split(':').map(Number);
         let minutes = (eh * 60 + em) - (sh * 60 + sm);
         if (minutes < 0) minutes += 24 * 60;
         const cost = minutes * rate;
-        document.getElementById('wCost').value = cost.toFixed(2);
-        document.getElementById('costHint').textContent =
-            `${minutes} min × ₹${rate}/min = ${formatCurrency(cost)}`;
+        
+        costInput.value = cost.toFixed(2);
+        costHint.textContent = `${minutes} min × ₹${rate.toFixed(2)}/min = ${formatCurrency(cost)}`;
+    } else {
+        costInput.value = '';
+        costHint.textContent = 'Select times to auto-calculate';
     }
 }
 
@@ -297,18 +308,20 @@ async function saveWorkEntry() {
     const id = document.getElementById('workId').value;
     const clientId = document.getElementById('wClient').value;
     const vehicleId = document.getElementById('wVehicle').value;
+    const equipmentId = document.getElementById('wEquipment').value;
     const driverId = document.getElementById('wDriver').value;
 
-    if (!clientId || !vehicleId) { showToast('Client and Vehicle are required', 'error'); return; }
+    if (!clientId || !vehicleId || !equipmentId) { showToast('Client, Vehicle, and Equipment are required', 'error'); return; }
 
     const entry = {
         client: { id: parseInt(clientId) },
         vehicle: { id: parseInt(vehicleId) },
+        equipment: { id: parseInt(equipmentId) },
         driver: driverId ? { id: parseInt(driverId) } : null,
         workDate: document.getElementById('wDate').value,
         startTime: document.getElementById('wStart').value || null,
         endTime: document.getElementById('wEnd').value || null,
-        isManualCost: document.getElementById('wManual').checked,
+        isManualCost: !document.getElementById('wCost').readOnly,
         totalCost: parseFloat(document.getElementById('wCost').value) || 0,
         notes: document.getElementById('wNotes').value,
     };

@@ -39,15 +39,16 @@
             © 2026 SK SONS Cultivaters · Admin Portal
         </p>
         <p style="text-align:center; margin-top:12px;">
-            <a href="landing.html" style="font-size:12px; color:var(--primary); text-decoration:none; font-weight:500;">← Back to Home</a>
+            <a href="index.html" style="font-size:12px; color:var(--primary); text-decoration:none; font-weight:500;">← Back to Home</a>
         </p>
     </div>
 </div>
 
+<script src="js/config.js"></script>
 <script>
     // Don't redirect if already on login page
     if (sessionStorage.getItem('sk_token')) {
-        window.location.href = 'index.html';
+        window.location.href = 'dashboard.html';
     }
 
     async function handleLogin(e) {
@@ -63,7 +64,7 @@
         alertBox.style.display = 'none';
 
         try {
-            const res = await fetch('http://localhost:8080/api/auth/login', {
+            const res = await fetch(`${API_HOST}/api/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password })
@@ -71,7 +72,7 @@
             const data = await res.json();
             if (data.success) {
                 sessionStorage.setItem('sk_token', data.token);
-                window.location.href = 'index.html';
+                window.location.href = 'dashboard.html';
             } else {
                 showAlert('error', '❌ ' + (data.message || 'Invalid credentials'));
             }

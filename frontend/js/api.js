@@ -3,12 +3,14 @@
 // Shared API Utilities
 // ============================================
 
-const BASE_URL = 'http://localhost:8080/api';
+const BASE_URL = `${API_HOST}/api`;
 
 // Auth Guard
 function checkAuth() {
     const token = sessionStorage.getItem('sk_token');
-    if (!token && !window.location.pathname.endsWith('login.html')) {
+    const path = window.location.pathname;
+    const isPublicPage = path.endsWith('login.html') || path.endsWith('landing.html') || path === '/' || path === '';
+    if (!token && !isPublicPage) {
         window.location.href = 'login.html';
     }
 }

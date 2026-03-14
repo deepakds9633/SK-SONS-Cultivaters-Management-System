@@ -1,44 +1,41 @@
 package com.sksons.cultivaters.entity;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-@Entity
-@Table(name = "work_entries")
+@Document(collection = "work_entries")
 public class WorkEntry {
 
+    @Transient
+    public static final String SEQUENCE_NAME = "work_entries_sequence";
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "client_id", nullable = false)
+    @DBRef
     private Client client;
 
-    @ManyToOne
-    @JoinColumn(name = "vehicle_id")
+    @DBRef(lazy = true)
     private Vehicle vehicle;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "equipment_id")
+    @DBRef(lazy = true)
     private Equipment equipment;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "driver_id")
+    @DBRef(lazy = true)
     private Driver driver;
 
-    @Column(nullable = false)
     private LocalDate workDate;
-
     private LocalTime startTime;
     private LocalTime endTime;
     private Integer totalMinutes;
     private Double totalCost;
     private Boolean isManualCost = false;
     private Boolean isPaid = false;
-
-    @Column(columnDefinition = "TEXT")
     private String notes;
 
     public WorkEntry() {}
@@ -52,11 +49,11 @@ public class WorkEntry {
     public Vehicle getVehicle() { return vehicle; }
     public void setVehicle(Vehicle vehicle) { this.vehicle = vehicle; }
 
-    public Driver getDriver() { return driver; }
-    public void setDriver(Driver driver) { this.driver = driver; }
-
     public Equipment getEquipment() { return equipment; }
     public void setEquipment(Equipment equipment) { this.equipment = equipment; }
+
+    public Driver getDriver() { return driver; }
+    public void setDriver(Driver driver) { this.driver = driver; }
 
     public LocalDate getWorkDate() { return workDate; }
     public void setWorkDate(LocalDate workDate) { this.workDate = workDate; }

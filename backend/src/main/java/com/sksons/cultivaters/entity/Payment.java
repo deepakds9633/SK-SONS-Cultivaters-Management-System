@@ -1,32 +1,31 @@
 package com.sksons.cultivaters.entity;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.time.LocalDate;
 
-@Entity
-@Table(name = "payments")
+@Document(collection = "payments")
 public class Payment {
 
+    @Transient
+    public static final String SEQUENCE_NAME = "payments_sequence";
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "client_id", nullable = false)
+    @DBRef
     private Client client;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "work_entry_id")
+    @DBRef(lazy = true)
     private WorkEntry workEntry;
 
-    @Column(nullable = false)
     private LocalDate paymentDate;
-
     private Double paidAmount;
     private Double remainingBalance;
     private String paymentMode;
-
-    @Column(columnDefinition = "TEXT")
     private String remarks;
 
     public Payment() {}

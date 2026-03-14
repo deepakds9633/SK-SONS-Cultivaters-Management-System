@@ -4,13 +4,20 @@ import com.sksons.cultivaters.entity.*;
 import com.sksons.cultivaters.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.TypedAggregation;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class WorkEntryService {
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     @Autowired
     private WorkEntryRepository workEntryRepository;
@@ -20,10 +27,15 @@ public class WorkEntryService {
 
     @Autowired
     private DriverRepository driverRepository;
-    
+
     @Autowired
     private EquipmentRepository equipmentRepository;
 
+    @Autowired
+    private VehicleRepository vehicleRepository;
+
+    @Autowired
+    private SequenceGeneratorService sequenceGenerator;
 
     public List<WorkEntry> getAllWorkEntries() {
         return workEntryRepository.findAll();
@@ -37,11 +49,12 @@ public class WorkEntryService {
         return workEntryRepository.findById(id);
     }
 
-    @Autowired
-    private VehicleRepository vehicleRepository;
-
-    @Transactional
     public WorkEntry saveWorkEntry(WorkEntry workEntry) {
+        // Assign ID for new entries
+        if (workEntry.getId() == null) {
+            workEntry.setId(sequenceGenerator.generateSequence(WorkEntry.SEQUENCE_NAME));
+        }
+
         // Fetch full entities if only IDs are provided
         if (workEntry.getClient() != null && workEntry.getClient().getId() != null) {
             workEntry.setClient(clientRepository.findById(workEntry.getClient().getId()).orElse(workEntry.getClient()));
@@ -67,11 +80,9 @@ public class WorkEntryService {
             if (!Boolean.TRUE.equals(workEntry.getIsManualCost()) && workEntry.getEquipment() != null) {
                 double hourlyRate = workEntry.getEquipment().getHourlyCharge();
                 double minuteRate = hourlyRate / 60.0;
-                
                 if (hourlyRate > 0.0) {
                     workEntry.setTotalCost(Math.round(minutes * minuteRate * 100.0) / 100.0);
                 } else {
-                    // Default behavior if rate is 0 (e.g., Loader)
                     workEntry.setTotalCost(0.0);
                 }
             }
@@ -87,7 +98,6 @@ public class WorkEntryService {
         return saved;
     }
 
-    @Transactional
     public WorkEntry updateWorkEntry(Long id, WorkEntry workEntryDetails) {
         WorkEntry workEntry = workEntryRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("WorkEntry not found with id: " + id));
@@ -104,7 +114,6 @@ public class WorkEntryService {
         return saveWorkEntry(workEntry);
     }
 
-    @Transactional
     public void deleteWorkEntry(Long id) {
         WorkEntry workEntry = workEntryRepository.findById(id).orElse(null);
         workEntryRepository.deleteById(id);
@@ -114,13 +123,20 @@ public class WorkEntryService {
     }
 
     public Double getTotalIncome() {
-        return workEntryRepository.getTotalIncome();
+        TypedAggregation<WorkEntry> aggregation = newAggregation(WorkEntry.class,
+            group().sum("totalCost").as("total")
+        );
+        AggregationResults<org.bson.Document> result = mongoTemplate.aggregate(aggregation, org.bson.Document.class);
+        org.bson.Document doc = result.getUniqueMappedResult();
+        if (doc != null && doc.get("total") != null) {
+            return ((Number) doc.get("total")).doubleValue();
+        }
+        return 0.0;
     }
 
     public Long getTotalWorkCount() {
-        return workEntryRepository.getTotalWorkCount();
+        return workEntryRepository.count();
     }
-
 
     private void updateClientTotalCharge(Long clientId) {
         clientRepository.findById(clientId).ifPresent(client -> {
@@ -129,7 +145,7 @@ public class WorkEntryService {
                 .mapToDouble(e -> e.getTotalCost() != null ? e.getTotalCost() : 0.0)
                 .sum();
             client.setTotalCharge(total);
-            client.setPendingBalance(total - client.getTotalPaid());
+            client.setPendingBalance(total - (client.getTotalPaid() != null ? client.getTotalPaid() : 0.0));
             clientRepository.save(client);
         });
     }

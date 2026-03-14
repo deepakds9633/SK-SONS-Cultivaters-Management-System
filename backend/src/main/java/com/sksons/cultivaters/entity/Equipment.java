@@ -1,19 +1,19 @@
 package com.sksons.cultivaters.entity;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
-@Table(name = "equipment")
+@Document(collection = "equipment")
 public class Equipment {
 
+    @Transient
+    public static final String SEQUENCE_NAME = "equipment_sequence";
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private String name;
-
-    @Column(nullable = false)
     private Double hourlyCharge = 0.0;
 
     public Equipment() {}

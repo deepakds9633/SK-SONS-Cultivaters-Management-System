@@ -1,12 +1,16 @@
 package com.sksons.cultivaters.service;
 
 import com.sksons.cultivaters.entity.Attendance;
-
 import com.sksons.cultivaters.repository.AttendanceRepository;
 import com.sksons.cultivaters.repository.DriverRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.TypedAggregation;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -15,10 +19,16 @@ import java.util.Optional;
 public class AttendanceService {
 
     @Autowired
+    private MongoTemplate mongoTemplate;
+
+    @Autowired
     private AttendanceRepository attendanceRepository;
 
     @Autowired
     private DriverRepository driverRepository;
+
+    @Autowired
+    private SequenceGeneratorService sequenceGenerator;
 
     public List<Attendance> getAllAttendance() {
         return attendanceRepository.findAll();
@@ -36,18 +46,21 @@ public class AttendanceService {
         return attendanceRepository.findById(id);
     }
 
-    @Transactional
     public Attendance saveAttendance(Attendance attendance) {
-        // If present, calculate salary; if not, salary = 0
+        if (attendance.getId() == null) {
+            attendance.setId(sequenceGenerator.generateSequence(Attendance.SEQUENCE_NAME));
+        }
+
+        // Fetch full driver if ID only
+        if (attendance.getDriver() != null && attendance.getDriver().getId() != null) {
+            driverRepository.findById(attendance.getDriver().getId()).ifPresent(attendance::setDriver);
+        }
+
+        // If not present, salary is 0
         if (!Boolean.TRUE.equals(attendance.getPresent())) {
             attendance.setSalaryForDay(0.0);
-        } else if (attendance.getSalaryForDay() == null) {
-            // Use driver's daily salary
-            if (attendance.getDriver() != null) {
-                driverRepository.findById(attendance.getDriver().getId()).ifPresent(driver -> {
-                    attendance.setSalaryForDay(driver.getDailySalary());
-                });
-            }
+        } else if (attendance.getSalaryForDay() == null && attendance.getDriver() != null) {
+            attendance.setSalaryForDay(attendance.getDriver().getDailySalary());
         }
 
         // pending = salary - paid
@@ -65,7 +78,6 @@ public class AttendanceService {
         return saved;
     }
 
-    @Transactional
     public Attendance updateAttendance(Long id, Attendance attendanceDetails) {
         Attendance existing = attendanceRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Attendance not found with id: " + id));
@@ -78,7 +90,6 @@ public class AttendanceService {
         return saveAttendance(existing);
     }
 
-    @Transactional
     public void deleteAttendance(Long id) {
         Attendance attendance = attendanceRepository.findById(id).orElse(null);
         attendanceRepository.deleteById(id);
@@ -88,11 +99,29 @@ public class AttendanceService {
     }
 
     public Double getTotalPendingSalary() {
-        return attendanceRepository.getTotalPendingSalary();
+        TypedAggregation<Attendance> aggregation = newAggregation(Attendance.class,
+            match(org.springframework.data.mongodb.core.query.Criteria.where("isPaid").is(false)),
+            group().sum("dailySalary").as("total")
+        );
+        AggregationResults<org.bson.Document> result = mongoTemplate.aggregate(aggregation, org.bson.Document.class);
+        org.bson.Document doc = result.getUniqueMappedResult();
+        if (doc != null && doc.get("total") != null) {
+            return ((Number) doc.get("total")).doubleValue();
+        }
+        return 0.0;
     }
 
     public Double getTotalSalaryPaid() {
-        return attendanceRepository.getTotalSalaryPaid();
+        TypedAggregation<Attendance> aggregation = newAggregation(Attendance.class,
+            match(org.springframework.data.mongodb.core.query.Criteria.where("isPaid").is(true)),
+            group().sum("dailySalary").as("total")
+        );
+        AggregationResults<org.bson.Document> result = mongoTemplate.aggregate(aggregation, org.bson.Document.class);
+        org.bson.Document doc = result.getUniqueMappedResult();
+        if (doc != null && doc.get("total") != null) {
+            return ((Number) doc.get("total")).doubleValue();
+        }
+        return 0.0;
     }
 
     private void updateDriverSalaryTotals(Long driverId) {

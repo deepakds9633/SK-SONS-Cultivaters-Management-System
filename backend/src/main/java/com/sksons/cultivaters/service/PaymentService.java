@@ -7,13 +7,21 @@ import com.sksons.cultivaters.repository.PaymentRepository;
 import com.sksons.cultivaters.repository.WorkEntryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.TypedAggregation;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 
 @Service
 public class PaymentService {
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     @Autowired
     private PaymentRepository paymentRepository;
@@ -23,6 +31,9 @@ public class PaymentService {
 
     @Autowired
     private WorkEntryRepository workEntryRepository;
+
+    @Autowired
+    private SequenceGeneratorService sequenceGenerator;
 
     public List<Payment> getAllPayments() {
         return paymentRepository.findAll();
@@ -36,8 +47,10 @@ public class PaymentService {
         return paymentRepository.findById(id);
     }
 
-    @Transactional
     public Payment savePayment(Payment payment) {
+        if (payment.getId() == null) {
+            payment.setId(sequenceGenerator.generateSequence(Payment.SEQUENCE_NAME));
+        }  
         // Calculate remaining balance based on client's totals
         if (payment.getClient() != null) {
             clientRepository.findById(payment.getClient().getId()).ifPresent(client -> {
@@ -83,7 +96,6 @@ public class PaymentService {
         });
     }
 
-    @Transactional
     public Payment updatePayment(Long id, Payment paymentDetails) {
         Payment existing = paymentRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Payment not found with id: " + id));
@@ -107,7 +119,6 @@ public class PaymentService {
         return savePayment(existing);
     }
 
-    @Transactional
     public void deletePayment(Long id) {
         paymentRepository.findById(id).ifPresent(payment -> {
             Long clientId = payment.getClient() != null ? payment.getClient().getId() : null;
@@ -129,10 +140,28 @@ public class PaymentService {
     }
 
     public Double getTotalPaid() {
-        return paymentRepository.getTotalPaid();
+        TypedAggregation<Payment> aggregation = newAggregation(Payment.class,
+            group().sum("paidAmount").as("total")
+        );
+        AggregationResults<org.bson.Document> result = mongoTemplate.aggregate(aggregation, org.bson.Document.class);
+        org.bson.Document doc = result.getUniqueMappedResult();
+        if (doc != null && doc.get("total") != null) {
+            return ((Number) doc.get("total")).doubleValue();
+        }
+        return 0.0;
     }
 
     public Double getTotalPending() {
-        return paymentRepository.getTotalPending();
+        TypedAggregation<Payment> aggregation = newAggregation(Payment.class,
+            match(org.springframework.data.mongodb.core.query.Criteria.where("remainingBalance").gt(0)),
+            group().sum("remainingBalance").as("total")
+        );
+        AggregationResults<org.bson.Document> result = mongoTemplate.aggregate(aggregation, org.bson.Document.class);
+        org.bson.Document doc = result.getUniqueMappedResult();
+        if (doc != null && doc.get("total") != null) {
+            return ((Number) doc.get("total")).doubleValue();
+        }
+        return 0.0;
     }
+
 }

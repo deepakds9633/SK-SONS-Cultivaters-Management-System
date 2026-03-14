@@ -19,6 +19,9 @@ public class VehicleService {
     @Autowired
     private VehicleRepository vehicleRepository;
 
+    @Autowired
+    private SequenceGeneratorService sequenceGenerator;
+
     private final String uploadDir = "uploads/vehicles";
 
     public List<Vehicle> getAllVehicles() {
@@ -30,6 +33,9 @@ public class VehicleService {
     }
 
     public Vehicle saveVehicle(Vehicle vehicle) {
+        if (vehicle.getId() == null) {
+            vehicle.setId(sequenceGenerator.generateSequence(Vehicle.SEQUENCE_NAME));
+        }
         return vehicleRepository.save(vehicle);
     }
 

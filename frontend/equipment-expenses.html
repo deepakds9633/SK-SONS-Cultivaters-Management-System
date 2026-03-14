@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equipment Expenses — SK SONS Cultivaters</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-layout">
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <a href="index.html" class="brand-logo">
+                <div class="brand-icon">🌾</div>
+                <div class="brand-text"><h1>SK SONS</h1><span>Cultivaters Mgmt</span></div>
+            </a>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-title">Main</div>
+            <a href="index.html" class="nav-link"><span class="nav-icon">📊</span> Dashboard</a>
+            <div class="nav-section-title">Management</div>
+            <a href="vehicles.html" class="nav-link"><span class="nav-icon">🚜</span> Vehicles</a>
+            <a href="equipment.html" class="nav-link"><span class="nav-icon">⚙️</span> Equipment</a>
+            <a href="clients.html" class="nav-link"><span class="nav-icon">👨‍🌾</span> Clients</a>
+            <a href="work-entries.html" class="nav-link"><span class="nav-icon">📋</span> Work Entries</a>
+            <a href="payments.html" class="nav-link"><span class="nav-icon">💰</span> Payments</a>
+            <a href="expenses.html" class="nav-link"><span class="nav-icon">📉</span> Vehicle Expenses</a>
+            <a href="equipment-expenses.html" class="nav-link active"><span class="nav-icon">🛠️</span> Equipment Expenses</a>
+            <a href="enquiries.html" class="nav-link"><span class="nav-icon">📨</span> Enquiries</a>
+            <div class="nav-section-title">Drivers</div>
+            <a href="drivers.html" class="nav-link"><span class="nav-icon">🧑‍✈️</span> Drivers</a>
+            <a href="attendance.html" class="nav-link"><span class="nav-icon">📅</span> Attendance & Salary</a>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="btn-logout" onclick="logout()"><span>🚪</span> Logout</button>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <header class="topbar">
+            <div class="topbar-title">🛠️ Equipment Expenses</div>
+            <div class="topbar-right">
+                <span class="topbar-badge">🟢 Admin</span>
+                <span class="topbar-time" id="topbar-time"></span>
+            </div>
+        </header>
+
+        <main class="page-content">
+            <div class="breadcrumb">
+                <a href="index.html">Dashboard</a> <span>›</span> Equipment Expenses
+            </div>
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Maintenance <span>Costs</span></h2>
+                    <p class="section-sub">Track repair, service, and parts costs per equipment (Rotavator, Cultivator, etc.)</p>
+                </div>
+                <button class="btn btn-primary" onclick="openAddModal()">➕ Record Expense</button>
+            </div>
+
+            <div class="table-card">
+                <div class="table-toolbar">
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <select id="equipmentFilter" onchange="loadExpenses()" style="border:none; background:transparent; outline:none; font-size:14px; color:var(--text-primary); cursor:pointer;">
+                            <option value="">All Equipment</option>
+                        </select>
+                    </div>
+                    <span id="expenseCount" style="font-size:13px;color:var(--text-muted);">Loading...</span>
+                </div>
+                <div class="table-wrap">
+                    <table id="expenseTable">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Equipment</th>
+                                <th>Expense Type</th>
+                                <th>Amount</th>
+                                <th>Remarks</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expenseTableBody">
+                            <tr><td colspan="6"><div class="empty-state"><span class="empty-icon">⏳</span><p>Loading...</p></div></td></tr>
+                        </tbody>
+                        <tfoot>
+                            <tr style="background:rgba(249,115,22,0.05);">
+                                <td colspan="3" style="text-align:right; font-weight:600;">Total Maintenance:</td>
+                                <td colspan="3" id="totalExpenses" style="font-weight:700; color:#ef4444; font-size:16px;">₹0.00</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Add Expense Modal -->
+<div class="modal-overlay" id="expenseModal">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title" id="modalTitle">Record Equipment Expense</span>
+            <button class="modal-close" onclick="closeModal('expenseModal')">×</button>
+        </div>
+        <div class="modal-body">
+            <form id="expenseForm" class="form-grid">
+                <div class="form-group span-2">
+                    <label>Select Equipment *</label>
+                    <select id="expEquipment" required>
+                        <option value="" disabled selected>-- Select Equipment --</option>
+                    </select>
+                </div>
+                <div class="form-group span-2" style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                    <div>
+                        <label>Date *</label>
+                        <input type="date" id="expDate" required>
+                    </div>
+                    <div>
+                        <label>Expense Type *</label>
+                        <select id="expType" required>
+                            <option value="Service">Routine Service</option>
+                            <option value="Repair">Repair Work</option>
+                            <option value="Parts">Spare Parts Replacement</option>
+                            <option value="Lubrication">Lubrication / Grease</option>
+                            <option value="Other">Other Operational Cost</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group span-2">
+                    <label>Amount (₹) *</label>
+                    <input type="number" id="expAmount" min="0" step="0.01" placeholder="e.g. 500" required>
+                </div>
+                <div class="form-group span-2">
+                    <label>Remarks / Details</label>
+                    <input type="text" id="expRemarks" placeholder="e.g. Welded broken tine">
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('expenseModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveExpense()">💾 Save Expense</button>
+        </div>
+    </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+let equipmentList = [];
+let expenses = [];
+
+async function initialize() {
+    try {
+        equipmentList = await api.get('/equipment');
+        populateEquipmentDropdowns();
+    } catch (err) {
+        console.error('Failed to load equipment', err);
+    }
+    
+    document.getElementById('expDate').valueAsDate = new Date();
+    
+    loadExpenses();
+}
+
+function populateEquipmentDropdowns() {
+    const filterSelect = document.getElementById('equipmentFilter');
+    const formSelect = document.getElementById('expEquipment');
+    
+    equipmentList.forEach(e => {
+        filterSelect.innerHTML += `<option value="${e.id}">${e.name}</option>`;
+        formSelect.innerHTML += `<option value="${e.id}">${e.name}</option>`;
+    });
+}
+
+async function loadExpenses() {
+    const equipmentId = document.getElementById('equipmentFilter').value;
+    try {
+        if (equipmentId) {
+            expenses = await api.get(`/equipment-expenses/equipment/${equipmentId}`);
+        } else {
+            expenses = await api.get('/equipment-expenses');
+        }
+        renderTable();
+    } catch (err) {
+        showToast('Failed to load expenses', 'error');
+        document.getElementById('expenseTableBody').innerHTML = `<tr><td colspan="6"><div class="empty-state"><p style="color:#ef4444;">Failed to connect to server.</p></div></td></tr>`;
+    }
+}
+
+function renderTable() {
+    const tbody = document.getElementById('expenseTableBody');
+    if (!expenses || !expenses.length) {
+        tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">
+            <span class="empty-icon">📈</span><p>No equipment expenses recorded yet.</p></div></td></tr>`;
+        document.getElementById('expenseCount').textContent = `0 records`;
+        document.getElementById('totalExpenses').textContent = '₹0.00';
+        return;
+    }
+    
+    let total = 0;
+    tbody.innerHTML = expenses.map(e => {
+        total += (e.amount || 0);
+        let badgeColor = 'gray';
+        if (e.expenseType === 'Repair' || e.expenseType === 'Parts') badgeColor = 'red';
+        else if (e.expenseType === 'Service') badgeColor = 'amber';
+        else if (e.expenseType === 'Lubrication') badgeColor = 'blue';
+        
+        return `<tr>
+            <td style="color:var(--text-muted); font-size:13px;">${new Date(e.date).toLocaleDateString()}</td>
+            <td style="font-weight:600;">${e.equipmentName || '-'}</td>
+            <td><span class="badge badge-${badgeColor}">${e.expenseType}</span></td>
+            <td style="font-weight:600; color:#ef4444;">-${formatCurrency(e.amount)}</td>
+            <td style="color:var(--text-muted); font-size:13px;">${e.remarks || '-'}</td>
+            <td>
+                <button class="btn btn-outline" style="border-color:#ef4444; color:#ef4444; padding:4px 8px; font-size:12px;" onclick="deleteExpense('${e.id}')">🗑️ Delete</button>
+            </td>
+        </tr>`;
+    }).join('');
+    
+    document.getElementById('expenseCount').textContent = `${expenses.length} record(s)`;
+    document.getElementById('totalExpenses').textContent = formatCurrency(total);
+}
+
+function openAddModal() {
+    document.getElementById('expenseForm').reset();
+    document.getElementById('expDate').valueAsDate = new Date();
+    openModal('expenseModal');
+}
+
+async function saveExpense() {
+    const equipSelect = document.getElementById('expEquipment');
+    const equipmentId = equipSelect.value;
+    const equipmentName = equipSelect.options[equipSelect.selectedIndex]?.text;
+    const date = document.getElementById('expDate').value;
+    const expenseType = document.getElementById('expType').value;
+    const amount = parseFloat(document.getElementById('expAmount').value);
+    const remarks = document.getElementById('expRemarks').value;
+
+    if (!equipmentId || !date || !expenseType || isNaN(amount) || amount <= 0) {
+        showToast('Please fill all required fields correctly', 'error');
+        return;
+    }
+
+    const payload = {
+        equipmentId,
+        equipmentName,
+        expenseType,
+        amount,
+        date,
+        remarks
+    };
+
+    try {
+        await api.post('/equipment-expenses', payload);
+        showToast('Expense recorded successfully!', 'success');
+        closeModal('expenseModal');
+        loadExpenses();
+    } catch (err) {
+        showToast('Failed to save: ' + err.message, 'error');
+    }
+}
+
+async function deleteExpense(id) {
+    if (!confirm('Delete this expense record? This action cannot be undone.')) return;
+    try {
+        await api.delete(`/equipment-expenses/${id}`);
+        showToast('Record deleted');
+        loadExpenses();
+    } catch (err) {
+        showToast('Delete failed: ' + err.message, 'error');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', initialize);
+</script>
+</body>
+</html>

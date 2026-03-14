@@ -1,21 +1,21 @@
 package com.sksons.cultivaters.entity;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
-@Table(name = "vehicles")
+@Document(collection = "vehicles")
 public class Vehicle {
 
+    @Transient
+    public static final String SEQUENCE_NAME = "vehicles_sequence";
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private String name;
-
     private String modelNumber;
-
-    private String imagePath; // Path or URL to the uploaded image
+    private String imagePath;
 
     public Vehicle() {}
 

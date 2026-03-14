@@ -13,6 +13,9 @@ public class DriverService {
     @Autowired
     private DriverRepository driverRepository;
 
+    @Autowired
+    private SequenceGeneratorService sequenceGenerator;
+
     public List<Driver> getAllDrivers() {
         return driverRepository.findAll();
     }
@@ -22,6 +25,9 @@ public class DriverService {
     }
 
     public Driver saveDriver(Driver driver) {
+        if (driver.getId() == null) {
+            driver.setId(sequenceGenerator.generateSequence(Driver.SEQUENCE_NAME));
+        }
         return driverRepository.save(driver);
     }
 

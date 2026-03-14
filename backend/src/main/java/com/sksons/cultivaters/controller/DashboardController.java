@@ -18,6 +18,8 @@ public class DashboardController {
     @Autowired private PaymentService paymentService;
     @Autowired private DriverService driverService;
     @Autowired private AttendanceService attendanceService;
+    @Autowired private VehicleExpenseService vehicleExpenseService;
+    @Autowired private EquipmentExpenseService equipmentExpenseService;
 
     @Value("${app.admin.username}")
     private String adminUsername;
@@ -36,10 +38,16 @@ public class DashboardController {
         stats.put("totalPaid", paymentService.getTotalPaid());
         stats.put("totalPending", paymentService.getTotalPending());
         stats.put("pendingSalary", attendanceService.getTotalPendingSalary());
+        
+        double totalVehicleExpenses = vehicleExpenseService.getTotalExpenses() != null ? vehicleExpenseService.getTotalExpenses() : 0.0;
+        stats.put("totalVehicleExpenses", totalVehicleExpenses);
+
+        double totalEquipmentExpenses = equipmentExpenseService.getTotalExpenses() != null ? equipmentExpenseService.getTotalExpenses() : 0.0;
+        stats.put("totalEquipmentExpenses", totalEquipmentExpenses);
 
         double totalIncome = workEntryService.getTotalIncome() != null ? workEntryService.getTotalIncome() : 0.0;
         double totalSalaryPaid = attendanceService.getTotalSalaryPaid() != null ? attendanceService.getTotalSalaryPaid() : 0.0;
-        stats.put("accountBalance", totalIncome - totalSalaryPaid);
+        stats.put("accountBalance", totalIncome - (totalSalaryPaid + totalVehicleExpenses + totalEquipmentExpenses));
 
         return stats;
     }

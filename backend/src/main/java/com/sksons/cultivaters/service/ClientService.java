@@ -13,6 +13,9 @@ public class ClientService {
     @Autowired
     private ClientRepository clientRepository;
 
+    @Autowired
+    private SequenceGeneratorService sequenceGenerator;
+
     public List<Client> getAllClients() {
         return clientRepository.findAll();
     }
@@ -22,6 +25,9 @@ public class ClientService {
     }
 
     public Client saveClient(Client client) {
+        if (client.getId() == null) {
+            client.setId(sequenceGenerator.generateSequence(Client.SEQUENCE_NAME));
+        }
         return clientRepository.save(client);
     }
 
@@ -43,8 +49,7 @@ public class ClientService {
         return clientRepository.count();
     }
 
-    // Recalculate client balances from all records
     public void recalculateClientBalance(Long clientId) {
-        // This will be triggered from PaymentService and WorkEntryService
+        // Triggered from PaymentService and WorkEntryService
     }
 }

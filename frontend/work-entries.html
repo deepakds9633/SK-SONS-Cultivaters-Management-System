@@ -23,7 +23,18 @@
             <a href="equipment.html" class="nav-link"><span class="nav-icon">⚙️</span> Equipment</a>
             <a href="clients.html" class="nav-link"><span class="nav-icon">👨‍🌾</span> Clients</a>
             <a href="work-entries.html" class="nav-link active"><span class="nav-icon">📋</span> Work Entries</a>
-            <a href="payments.html" class="nav-link"><span class="nav-icon">💰</span> Payments</a>
+            <a href="payments.html" class="nav-link">
+                <span class="nav-icon">💰</span> Payments
+            </a>
+            <a href="expenses.html" class="nav-link">
+                <span class="nav-icon">📉</span> Vehicle Expenses
+            </a>
+            <a href="equipment-expenses.html" class="nav-link">
+                <span class="nav-icon">🛠️</span> Equipment Expenses
+            </a>
+            <a href="enquiries.html" class="nav-link">
+                <span class="nav-icon">📨</span> Enquiries
+            </a>
             <div class="nav-section-title">Drivers</div>
             <a href="drivers.html" class="nav-link"><span class="nav-icon">🧑‍✈️</span> Drivers</a>
             <a href="attendance.html" class="nav-link"><span class="nav-icon">📅</span> Attendance & Salary</a>
@@ -73,6 +84,7 @@
                                 <th>End</th>
                                 <th>Minutes</th>
                                 <th>Total Cost</th>
+                                <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -224,8 +236,10 @@ function renderTable() {
             <td>${e.totalMinutes || '—'} min</td>
             <td class="amount-positive"><strong>${formatCurrency(e.totalCost || 0)}</strong></td>
             <td>
+                <button class="btn btn-sm" onclick="togglePaid(${e.id})" style="background:${e.isPaid ? '#f0fdf4' : '#fffbeb'};color:${e.isPaid ? '#16a34a' : '#d97706'};border:1px solid ${e.isPaid ? '#86efac' : '#fbbf24'};border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:600;min-width:90px;">${e.isPaid ? '✅ Paid' : '⏳ Pending'}</button>
+            </td>
+            <td>
                 <button class="btn btn-secondary btn-sm" onclick="editEntry(${e.id})">✏️ Edit</button>
-                <button class="btn btn-sm" onclick="togglePaid(${e.id})" style="background:${e.isPaid ? '#f0fdf4' : '#fffbeb'};color:${e.isPaid ? '#16a34a' : '#d97706'};border:1px solid ${e.isPaid ? '#86efac' : '#fbbf24'};border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px;">${e.isPaid ? '✅ Paid' : '⏳ Mark Paid'}</button>
                 <button class="btn btn-danger btn-sm" onclick="promptDelete(${e.id})">🗑️</button>
             </td>
         </tr>

@@ -1,22 +1,21 @@
 package com.sksons.cultivaters.entity;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
-@Table(name = "clients")
+@Document(collection = "clients")
 public class Client {
 
+    @Transient
+    public static final String SEQUENCE_NAME = "clients_sequence";
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private String name;
-
     private String phone;
     private String village;
-
-    @Column(columnDefinition = "TEXT")
     private String fieldDetails;
 
     private Double totalCharge = 0.0;

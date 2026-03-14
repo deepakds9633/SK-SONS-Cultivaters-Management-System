@@ -14,6 +14,9 @@ public class EquipmentService {
     @Autowired
     private EquipmentRepository equipmentRepository;
 
+    @Autowired
+    private SequenceGeneratorService sequenceGenerator;
+
     public List<Equipment> getAllEquipment() {
         return equipmentRepository.findAll();
     }
@@ -23,6 +26,9 @@ public class EquipmentService {
     }
 
     public Equipment saveEquipment(Equipment equipment) {
+        if (equipment.getId() == null) {
+            equipment.setId(sequenceGenerator.generateSequence(Equipment.SEQUENCE_NAME));
+        }
         return equipmentRepository.save(equipment);
     }
 

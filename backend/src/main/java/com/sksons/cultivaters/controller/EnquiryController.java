@@ -13,7 +13,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/enquiries")
-@CrossOrigin(origins = "http://localhost:3000")
 public class EnquiryController {
 
     @Autowired

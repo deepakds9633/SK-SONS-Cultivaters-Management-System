@@ -2,12 +2,14 @@ package com.sksons.cultivaters.entity;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
+import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
 
 @Document(collection = "payments")
+@TypeAlias("Payment")
 public class Payment {
 
     @Transient

@@ -26,7 +26,9 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOrigins(
                         "https://sk-sons-cultivaters.web.app",
                         "http://localhost:3000",
-                        "http://localhost:5500"
+                        "http://localhost:5000",
+                        "http://localhost:5500",
+                        "http://localhost:8081"
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")

@@ -35,7 +35,9 @@ public class SecurityConfig {
         config.setAllowedOrigins(List.of(
             "https://sk-sons-cultivaters.web.app",
             "http://localhost:3000",
-            "http://localhost:5500"
+            "http://localhost:5000",
+            "http://localhost:5500",
+            "http://localhost:8081"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));

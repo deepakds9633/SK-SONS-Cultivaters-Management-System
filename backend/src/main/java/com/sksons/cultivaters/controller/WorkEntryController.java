@@ -9,7 +9,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/work-entries")
-@CrossOrigin(origins = "*")
 public class WorkEntryController {
 
     @Autowired

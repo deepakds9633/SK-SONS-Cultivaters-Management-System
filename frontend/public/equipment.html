@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -8,8 +8,10 @@
 </head>
 <body>
 <div class="app-layout">
+    <div class="sidebar-overlay"></div>
     <!-- Sidebar -->
     <aside class="sidebar">
+        <button class="sidebar-close">&times;</button>
         <div class="sidebar-brand">
             <a href="dashboard.html" class="brand-logo">
                 <div class="brand-icon">🌾</div>
@@ -67,7 +69,7 @@
     <!-- Main Content -->
     <div class="main-content">
         <header class="topbar">
-            <div class="topbar-title">⚙️ Equipment Management</div>
+            <div class="topbar-title"><button class="menu-toggle">☰</button> ⚙️ Equipment Management</div>
             <div class="topbar-right">
                 <span class="topbar-badge">🟢 Admin</span>
                 <span class="topbar-time" id="topbar-time"></span>
@@ -143,6 +145,7 @@
 
 <script src="js/config.js"></script>
 <script src="js/api.js"></script>
+<script src="js/ui.js"></script>
 <script>
 let equipmentList = [];
 

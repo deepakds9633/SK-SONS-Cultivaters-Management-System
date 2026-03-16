@@ -1138,8 +1138,13 @@
         @media (max-width: 1024px) {
             .hero-grid {
                 grid-template-columns: 1fr;
-                gap: 40px;
+                gap: 32px;
+                text-align: center;
             }
+
+            .hero-badge { margin-left: auto; margin-right: auto; }
+            .hero-actions { justify-content: center; }
+            .hero-stats { justify-content: center; }
 
             .hero-visual {
                 display: none;
@@ -1164,6 +1169,9 @@
         }
 
         @media (max-width: 768px) {
+            .hero-title { font-size: 32px; }
+            .hero-desc { font-size: 14px; }
+            
             .nav-links {
                 display: none;
                 flex-direction: column;
@@ -1172,9 +1180,10 @@
                 left: 0;
                 right: 0;
                 background: #070d09;
-                padding: 20px;
+                padding: 16px;
                 gap: 4px;
                 border-bottom: 1px solid var(--border);
+                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             }
 
             .nav-links.open {
@@ -1195,15 +1204,22 @@
 
             .footer-grid {
                 grid-template-columns: 1fr;
+                text-align: center;
             }
+            .footer-logo { justify-content: center; }
+            .footer-tagline { margin-left: auto; margin-right: auto; }
 
             .hero-stats {
-                gap: 18px;
+                gap: 14px;
                 flex-wrap: wrap;
             }
         }
 
         @media (max-width: 480px) {
+            .section-heading { font-size: 24px; }
+            .contact-form-card { padding: 20px; }
+            .btn-hero-primary, .btn-hero-secondary { width: 100%; text-align: center; }
+            .hero-actions { flex-direction: column; }
             .services-grid {
                 grid-template-columns: 1fr;
             }
@@ -1608,7 +1624,7 @@
             </div>
         </div>
     </footer>
-
+    <script src="js/config.js"></script>
     <script>
         // ─── Navbar scroll effect ───
         const navbar = document.getElementById('navbar');

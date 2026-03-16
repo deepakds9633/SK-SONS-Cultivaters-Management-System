@@ -1,10 +1,12 @@
 package com.sksons.cultivaters.entity;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDate;
 
 @Document(collection = "equipment_expenses")
+@TypeAlias("EquipmentExpense")
 public class EquipmentExpense {
     
     @Id

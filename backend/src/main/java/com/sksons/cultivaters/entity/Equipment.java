@@ -2,9 +2,11 @@ package com.sksons.cultivaters.entity;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
+import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "equipment")
+@TypeAlias("Equipment")
 public class Equipment {
 
     @Transient

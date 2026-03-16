@@ -30,10 +30,10 @@ com\sksons\cultivaters\repository\VehicleExpenseRepository.class
 com\sksons\cultivaters\controller\WorkEntryController.class
 com\sksons\cultivaters\entity\WorkEntry.class
 com\sksons\cultivaters\service\PaymentService.class
-com\sksons\cultivaters\CultivatersApplication.class
 com\sksons\cultivaters\entity\DatabaseSequence.class
 com\sksons\cultivaters\service\EquipmentExpenseService.class
 com\sksons\cultivaters\repository\EquipmentExpenseRepository.class
+com\sksons\cultivaters\CultivatorsApplication.class
 com\sksons\cultivaters\controller\VehicleExpenseController.class
 com\sksons\cultivaters\controller\VehicleController.class
 com\sksons\cultivaters\service\ClientService.class

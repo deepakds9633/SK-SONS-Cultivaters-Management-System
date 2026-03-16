@@ -1,5 +1,5 @@
 // ============================================
-// SK SONS Cultivaters — API Configuration
+// SK SONS Cultivators — API Configuration
 // ============================================
 // Change this ONE value to switch between environments:
 //

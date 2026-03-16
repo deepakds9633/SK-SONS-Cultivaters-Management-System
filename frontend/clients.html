@@ -3,13 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clients — SK SONS Cultivaters</title>
+    <title>Clients — SK SONS Cultivators</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
         @media print {
+            html, body {
+                height: auto !important;
+                overflow: hidden !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
             body > * { display: none !important; }
-            #printBill { display: block !important; position: static; background: white; padding: 0; margin: 0; }
+            #printBill {
+                display: block !important;
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 0 10px !important;
+                border: none !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                page-break-after: avoid !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            #printBill * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
             #printBill .no-print { display: none !important; }
+            #printBill .bill-footer { page-break-after: avoid !important; }
         }
         #printBill {
             display: none;
@@ -118,7 +143,7 @@
         <div class="sidebar-brand">
             <a href="dashboard.html" class="brand-logo">
                 <div class="brand-icon">🌾</div>
-                <div class="brand-text"><h1>SK SONS</h1><span>Cultivaters Mgmt</span></div>
+                <div class="brand-text"><h1>SK SONS</h1><span>Cultivators Mgmt</span></div>
             </a>
         </div>
         <nav class="sidebar-nav">
@@ -146,7 +171,7 @@
             <a href="attendance.html" class="nav-link"><span class="nav-icon">📅</span> Attendance & Salary</a>
         </nav>
         <div class="sidebar-footer">
-            <button class="btn-logout" onclick="logout()"><span>🚪</span> Logout</button>
+            <button class="btn-logout" onclick="logout()"><span>⏻</span> Logout</button>
         </div>
     </aside>
 
@@ -156,6 +181,7 @@
             <div class="topbar-right">
                 <span class="topbar-badge">🟢 Admin</span>
                 <span class="topbar-time" id="topbar-time"></span>
+                <button onclick="logout()" style="background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;">⏻ Logout</button>
             </div>
         </header>
 
@@ -295,7 +321,7 @@
 <div id="printBill">
     <!-- Company Header -->
     <div class="bill-header">
-        <h1>🌾 SK SONS CULTIVATERS</h1>
+        <h1>🌾 SK SONS Cultivators</h1>
         <p>Agricultural Machinery Services &mdash; Namakkal</p>
         <p class="contact">📞 9677628533</p>
         <p id="billDate" style="margin-top:8px; font-size:12px; opacity:0.85;"></p>
@@ -366,7 +392,7 @@
 
     <!-- Footer -->
     <div class="bill-footer">
-        <p>Thank you for choosing <strong>SK SONS Cultivaters</strong>! &nbsp;|&nbsp; Computer-generated invoice.</p>
+        <p>Thank you for choosing <strong>SK SONS Cultivators</strong>! &nbsp;|&nbsp; Computer-generated invoice.</p>
     </div>
 
     <!-- Actions (hidden on print) -->

@@ -1,5 +1,5 @@
 // ============================================
-// SK SONS Cultivaters Management System
+// SK SONS Cultivators Management System
 // Shared API Utilities
 // ============================================
 
@@ -20,6 +20,39 @@ function logout() {
     window.location.href = 'login.html';
 }
 
+// ─── Theme Toggle ───────────────────────────────────────────────
+function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('sk_theme', theme);
+    const btn = document.getElementById('themeToggleBtn');
+    if (btn) {
+        btn.innerHTML = theme === 'light'
+            ? '🌙 Dark Mode'
+            : '☀️ Light Mode';
+    }
+}
+
+function toggleTheme() {
+    const current = localStorage.getItem('sk_theme') || 'dark';
+    applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+
+function initTheme() {
+    const saved = localStorage.getItem('sk_theme') || 'dark';
+    applyTheme(saved);
+    // Inject toggle button into topbar-right if present
+    const topbarRight = document.querySelector('.topbar-right');
+    if (topbarRight && !document.getElementById('themeToggleBtn')) {
+        const btn = document.createElement('button');
+        btn.id = 'themeToggleBtn';
+        btn.className = 'theme-toggle-btn';
+        btn.onclick = toggleTheme;
+        btn.innerHTML = saved === 'light' ? '🌙 Dark Mode' : '☀️ Light Mode';
+        topbarRight.insertBefore(btn, topbarRight.firstChild);
+    }
+}
+
+
 // Generic fetch helper
 async function apiRequest(method, endpoint, body = null) {
     const options = {
@@ -33,7 +66,8 @@ async function apiRequest(method, endpoint, body = null) {
         throw new Error(err || `HTTP ${res.status}`);
     }
     if (res.status === 204) return null;
-    return res.json();
+    const text = await res.text();
+    return text ? JSON.parse(text) : null;
 }
 
 const api = {
@@ -144,6 +178,7 @@ function filterTable(tableId, searchVal) {
 // Init on DOM ready
 document.addEventListener('DOMContentLoaded', () => {
     checkAuth();
+    initTheme();
     setActiveNav();
     startClock();
 });

@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Equipment Expenses — SK SONS Cultivaters</title>
+    <title>Equipment Expenses — SK SONS Cultivators</title>
     <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
 <div class="app-layout">
@@ -12,7 +14,7 @@
         <div class="sidebar-brand">
             <a href="dashboard.html" class="brand-logo">
                 <div class="brand-icon">🌾</div>
-                <div class="brand-text"><h1>SK SONS</h1><span>Cultivaters Mgmt</span></div>
+                <div class="brand-text"><h1>SK SONS</h1><span>Cultivators Mgmt</span></div>
             </a>
         </div>
         <nav class="sidebar-nav">
@@ -32,7 +34,7 @@
             <a href="attendance.html" class="nav-link"><span class="nav-icon">📅</span> Attendance & Salary</a>
         </nav>
         <div class="sidebar-footer">
-            <button class="btn-logout" onclick="logout()"><span>🚪</span> Logout</button>
+            <button class="btn-logout" onclick="logout()"><span>⏻</span> Logout</button>
         </div>
     </aside>
 
@@ -42,6 +44,7 @@
             <div class="topbar-right">
                 <span class="topbar-badge">🟢 Admin</span>
                 <span class="topbar-time" id="topbar-time"></span>
+                <button onclick="logout()" style="background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;">⏻ Logout</button>
             </div>
         </header>
 
@@ -54,7 +57,10 @@
                     <h2 class="section-title">Maintenance <span>Costs</span></h2>
                     <p class="section-sub">Track repair, service, and parts costs per equipment (Rotavator, Cultivator, etc.)</p>
                 </div>
-                <button class="btn btn-primary" onclick="openAddModal()">➕ Record Expense</button>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <button class="btn btn-primary" onclick="openAddModal()">➕ Record Expense</button>
+                    <button class="btn btn-primary" onclick="openEquipReportModal()" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);border:none;">📄 Generate Report</button>
+                </div>
             </div>
 
             <div class="table-card">
@@ -143,11 +149,191 @@
     </div>
 </div>
 
+<!-- Equipment Expense Report Modal -->
+<div class="modal-overlay" id="equipReportModal">
+    <div class="modal modal-wide" style="max-width:520px;">
+        <div class="modal-header">
+            <span class="modal-title">📄 Generate Equipment Expense Report</span>
+            <button class="modal-close" onclick="closeModal('equipReportModal')">×</button>
+        </div>
+        <div class="modal-body">
+            <form class="form-grid">
+                <div class="form-group span-2">
+                    <label>Filter by Equipment</label>
+                    <select id="rEquipment">
+                        <option value="">All Equipment</option>
+                    </select>
+                </div>
+                <div class="form-group span-2" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                    <div>
+                        <label>From Date</label>
+                        <input type="date" id="rEqFrom">
+                    </div>
+                    <div>
+                        <label>To Date</label>
+                        <input type="date" id="rEqTo">
+                    </div>
+                </div>
+                <div class="form-group span-2">
+                    <label>Quick Range</label>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                        <button type="button" class="btn btn-secondary" style="font-size:12px;padding:6px 12px;" onclick="setEqRange('all')">All Time</button>
+                        <button type="button" class="btn btn-secondary" style="font-size:12px;padding:6px 12px;" onclick="setEqRange('month')">This Month</button>
+                        <button type="button" class="btn btn-secondary" style="font-size:12px;padding:6px 12px;" onclick="setEqRange('lastmonth')">Last Month</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('equipReportModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="generateEquipExpensePDF()" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);border:none;">⬇️ Download Report</button>
+        </div>
+    </div>
+</div>
+
 <script src="js/config.js"></script>
 <script src="js/api.js"></script>
 <script>
 let equipmentList = [];
 let expenses = [];
+
+// ─── Equipment Report Modal ──────────────────────────────────────
+function openEquipReportModal() {
+    const sel = document.getElementById('rEquipment');
+    sel.innerHTML = '<option value="">All Equipment</option>' +
+        equipmentList.map(e => `<option value="${e.id}">${e.name}</option>`).join('');
+    setEqRange('all');
+    openModal('equipReportModal');
+}
+
+function setEqRange(type) {
+    const today = new Date();
+    let from = '', to = '';
+    if (type === 'month') {
+        from = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+        to = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];
+    } else if (type === 'lastmonth') {
+        from = new Date(today.getFullYear(), today.getMonth() - 1, 1).toISOString().split('T')[0];
+        to = new Date(today.getFullYear(), today.getMonth(), 0).toISOString().split('T')[0];
+    }
+    document.getElementById('rEqFrom').value = from;
+    document.getElementById('rEqTo').value   = to;
+}
+
+function generateEquipExpensePDF() {
+    const equipId  = parseInt(document.getElementById('rEquipment').value) || null;
+    const fromDate = document.getElementById('rEqFrom').value;
+    const toDate   = document.getElementById('rEqTo').value;
+
+    if (fromDate && toDate && fromDate > toDate) { showToast('From date must be before To date', 'error'); return; }
+
+    const equip = equipId ? equipmentList.find(e => e.id === equipId) : null;
+    let records = equipId ? expenses.filter(e => e.equipmentId === equipId) : [...expenses];
+    if (fromDate) records = records.filter(e => e.date >= fromDate);
+    if (toDate)   records = records.filter(e => e.date <= toDate);
+    records.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+
+    if (!records.length) { showToast('No expense records found for selected filter', 'error'); return; }
+
+    const totalAmount = records.reduce((s, e) => s + (e.amount || 0), 0);
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const pageW = doc.internal.pageSize.getWidth();
+    const margin = 15;
+
+    // ── Header (orange theme for equipment) ──
+    doc.setFillColor(21, 128, 61);
+    doc.rect(0, 0, pageW, 38, 'F');
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(20); doc.setTextColor(255, 255, 255);
+    doc.text('SK SONS CULTIVATORS', pageW / 2, 14, { align: 'center' });
+    doc.setFontSize(10); doc.setFont('helvetica', 'normal');
+    doc.text('Agricultural Machinery Services — Namakkal', pageW / 2, 21, { align: 'center' });
+    doc.text('Phone: 9677628533', pageW / 2, 27, { align: 'center' });
+
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(margin, 33, pageW - margin * 2, 10, 2, 2, 'F');
+    doc.setTextColor(21, 128, 61); doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
+    doc.text('EQUIPMENT EXPENSE REPORT', pageW / 2, 39.5, { align: 'center' });
+
+    // ── Info Box ──
+    let y = 52;
+    doc.setFillColor(240, 253, 244);
+    doc.roundedRect(margin, y - 5, pageW - margin * 2, 24, 3, 3, 'F');
+    doc.setDrawColor(187, 247, 208); doc.roundedRect(margin, y - 5, pageW - margin * 2, 24, 3, 3, 'S');
+
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(107, 114, 128);
+    const col2 = pageW / 2 + 5;
+    doc.text('Equipment', margin + 5, y); doc.text('Period', margin + 5, y + 8);
+    doc.text('Total Records', col2, y); doc.text('Generated On', col2, y + 8);
+
+    const fmtDate = d => new Date(d + 'T00:00:00').toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+    const periodStr = (!fromDate && !toDate) ? 'All Time' : `${fromDate ? fmtDate(fromDate) : 'Start'}  to  ${toDate ? fmtDate(toDate) : 'Now'}`;
+
+    doc.setFont('helvetica', 'bold'); doc.setTextColor(17, 24, 39); doc.setFontSize(10);
+    doc.text(equip ? equip.name : 'All Equipment', margin + 35, y);
+    doc.text(periodStr, margin + 35, y + 8);
+    doc.text(`${records.length} record(s)`, col2 + 30, y);
+    doc.text(new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' }), col2 + 30, y + 8);
+
+    // ── Table ──
+    y += 30;
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(21, 128, 61);
+    doc.text('EXPENSE DETAILS', margin, y); y += 4;
+
+    const rows = records.map((e, i) => [
+        i + 1,
+        e.date ? fmtDate(e.date) : '—',
+        e.equipmentName || '—',
+        e.expenseType || '—',
+        `Rs. ${(e.amount || 0).toFixed(2)}`,
+        e.remarks || '—'
+    ]);
+
+    doc.autoTable({
+        startY: y,
+        head: [['#', 'Date', 'Equipment', 'Type', 'Amount', 'Remarks']],
+        body: rows,
+        theme: 'grid',
+        headStyles: { fillColor: [21, 128, 61], textColor: 255, fontStyle: 'bold', fontSize: 9 },
+        bodyStyles: { fontSize: 8.5, textColor: [31, 41, 55] },
+        alternateRowStyles: { fillColor: [240, 253, 244] },
+        columnStyles: { 0:{cellWidth:10}, 1:{cellWidth:28}, 2:{cellWidth:30}, 3:{cellWidth:28}, 4:{cellWidth:28}, 5:{cellWidth:56} },
+        margin: { left: margin, right: margin }
+    });
+
+    // ── Summary ──
+    const finalY = doc.lastAutoTable.finalY + 8;
+    doc.setFillColor(21, 128, 61);
+    doc.roundedRect(margin, finalY, pageW - margin * 2, 20, 3, 3, 'F');
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(187, 247, 208);
+    doc.text('Total Equipment Expenses', margin + 10, finalY + 8);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(14); doc.setTextColor(255, 255, 255);
+    doc.text(`Rs. ${totalAmount.toFixed(2)}`, margin + 10, finalY + 15);
+
+    // ── Signature ──
+    const sigY = finalY + 30;
+    doc.setDrawColor(209, 213, 219); doc.setLineWidth(0.3);
+    doc.line(pageW - margin - 60, sigY, pageW - margin, sigY);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(107, 114, 128);
+    doc.text('Authorized Signature', pageW - margin - 58, sigY + 5);
+    doc.setFont('helvetica', 'bold'); doc.setTextColor(17, 24, 39); doc.setFontSize(9);
+    doc.text('SK SONS Cultivators', pageW - margin - 58, sigY + 10);
+
+    // ── Footer ──
+    const footerY = doc.internal.pageSize.getHeight() - 10;
+    doc.setDrawColor(229, 231, 235); doc.setLineWidth(0.3);
+    doc.line(margin, footerY - 4, pageW - margin, footerY - 4);
+    doc.setFont('helvetica', 'italic'); doc.setFontSize(7.5); doc.setTextColor(156, 163, 175);
+    doc.text('System-generated equipment expense report. SK SONS Cultivators — Agricultural Machinery Services, Namakkal.', pageW / 2, footerY, { align: 'center' });
+
+    const eName = equip ? equip.name.replace(/\s+/g,'_') : 'AllEquipment';
+    const range = (!fromDate && !toDate) ? 'All' : `${fromDate||'Start'}_to_${toDate||'Now'}`;
+    doc.save(`EquipmentExpenses_${eName}_${range}.pdf`);
+    closeModal('equipReportModal');
+    showToast('Equipment expense report downloaded!', 'success');
+}
+
 
 async function initialize() {
     try {

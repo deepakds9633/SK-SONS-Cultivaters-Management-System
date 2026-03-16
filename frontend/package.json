@@ -1,7 +1,7 @@
 {
   "name": "frontend",
   "version": "1.0.0",
-  "description": "This repository contains the completely independent, detached Frontend for the SK SONS Cultivaters Management System.  It is built with vanilla HTML, CSS, and JavaScript. Space is neatly separated from the Spring Boot backend layer.",
+  "description": "This repository contains the completely independent, detached Frontend for the SK SONS Cultivators Management System.  It is built with vanilla HTML, CSS, and JavaScript. Space is neatly separated from the Spring Boot backend layer.",
   "main": "index.js",
   "scripts": {
     "dev": "npx serve .",

@@ -5,21 +5,12 @@ import com.sksons.cultivaters.repository.AttendanceRepository;
 import com.sksons.cultivaters.repository.DriverRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.AggregationResults;
-import org.springframework.data.mongodb.core.aggregation.TypedAggregation;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class AttendanceService {
-
-    @Autowired
-    private MongoTemplate mongoTemplate;
 
     @Autowired
     private AttendanceRepository attendanceRepository;
@@ -99,29 +90,15 @@ public class AttendanceService {
     }
 
     public Double getTotalPendingSalary() {
-        TypedAggregation<Attendance> aggregation = newAggregation(Attendance.class,
-            match(org.springframework.data.mongodb.core.query.Criteria.where("isPaid").is(false)),
-            group().sum("dailySalary").as("total")
-        );
-        AggregationResults<org.bson.Document> result = mongoTemplate.aggregate(aggregation, org.bson.Document.class);
-        org.bson.Document doc = result.getUniqueMappedResult();
-        if (doc != null && doc.get("total") != null) {
-            return ((Number) doc.get("total")).doubleValue();
-        }
-        return 0.0;
+        return driverRepository.findAll().stream()
+            .mapToDouble(d -> d.getPendingSalary() != null ? d.getPendingSalary() : 0.0)
+            .sum();
     }
 
     public Double getTotalSalaryPaid() {
-        TypedAggregation<Attendance> aggregation = newAggregation(Attendance.class,
-            match(org.springframework.data.mongodb.core.query.Criteria.where("isPaid").is(true)),
-            group().sum("dailySalary").as("total")
-        );
-        AggregationResults<org.bson.Document> result = mongoTemplate.aggregate(aggregation, org.bson.Document.class);
-        org.bson.Document doc = result.getUniqueMappedResult();
-        if (doc != null && doc.get("total") != null) {
-            return ((Number) doc.get("total")).doubleValue();
-        }
-        return 0.0;
+        return driverRepository.findAll().stream()
+            .mapToDouble(d -> d.getTotalSalaryPaid() != null ? d.getTotalSalaryPaid() : 0.0)
+            .sum();
     }
 
     private void updateDriverSalaryTotals(Long driverId) {

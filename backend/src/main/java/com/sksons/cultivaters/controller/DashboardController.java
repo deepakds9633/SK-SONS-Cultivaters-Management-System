@@ -45,9 +45,10 @@ public class DashboardController {
         double totalEquipmentExpenses = equipmentExpenseService.getTotalExpenses() != null ? equipmentExpenseService.getTotalExpenses() : 0.0;
         stats.put("totalEquipmentExpenses", totalEquipmentExpenses);
 
-        double totalIncome = workEntryService.getTotalIncome() != null ? workEntryService.getTotalIncome() : 0.0;
+        double totalReceived = paymentService.getTotalPaid() != null ? paymentService.getTotalPaid() : 0.0;
         double totalSalaryPaid = attendanceService.getTotalSalaryPaid() != null ? attendanceService.getTotalSalaryPaid() : 0.0;
-        stats.put("accountBalance", totalIncome - (totalSalaryPaid + totalVehicleExpenses + totalEquipmentExpenses));
+        // Final Closing Balance = Amount Received − (Driver Salary + Vehicle Expenses + Equipment Expenses)
+        stats.put("accountBalance", totalReceived - (totalSalaryPaid + totalVehicleExpenses + totalEquipmentExpenses));
 
         return stats;
     }

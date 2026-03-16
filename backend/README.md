@@ -1,6 +1,6 @@
-# SK SONS Cultivaters Management System
+# SK SONS Cultivators Management System
 
-Agricultural Machinery Management System for SK SONS Cultivaters.
+Agricultural Machinery Management System for SK SONS Cultivators.
 
 ## Quick Start
 
@@ -25,7 +25,7 @@ Default username is `root`.
 
 ### 3. Run the Application
 ```bash
-cd "SK SONS Cultivaters Management System"
+cd "SK SONS Cultivators Management System"
 mvn spring-boot:run
 ```
 
@@ -33,7 +33,7 @@ mvn spring-boot:run
 The frontend has been completely decoupled! Do **NOT** go to `localhost:8080/login.html` anymore (that is now just the raw REST API).
 
 Instead, open the separated frontend directly:
-1. Go to the `SK SONS Cultivaters Frontend` folder on your Desktop.
+1. Go to the `SK SONS Cultivators Frontend` folder on your Desktop.
 2. Double-click `login.html` to open it in your browser.
 
 Login credentials:

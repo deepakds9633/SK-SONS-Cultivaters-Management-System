@@ -1,281 +1,740 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard — SK SONS Cultivaters</title>
+    <title>Dashboard — SK SONS Cultivators</title>
     <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
+
 <body>
-<div class="app-layout">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="sidebar-brand">
-            <a href="dashboard.html" class="brand-logo">
-                <div class="brand-icon">🌾</div>
-                <div class="brand-text">
-                    <h1>SK SONS</h1>
-                    <span>Cultivaters Mgmt</span>
-                </div>
-            </a>
-        </div>
-        <nav class="sidebar-nav">
-            <div class="nav-section-title">Main</div>
-            <a href="dashboard.html" class="nav-link active">
-                <span class="nav-icon">📊</span> Dashboard
-            </a>
-            <div class="nav-section-title">Management</div>
-            <a href="vehicles.html" class="nav-link">
-                <span class="nav-icon">🚜</span> Vehicles
-            </a>
-            <a href="equipment.html" class="nav-link">
-                <span class="nav-icon">⚙️</span> Equipment
-            </a>
-            <a href="clients.html" class="nav-link">
-                <span class="nav-icon">👨‍🌾</span> Clients
-            </a>
-            <a href="work-entries.html" class="nav-link">
-                <span class="nav-icon">📋</span> Work Entries
-            </a>
-            <a href="payments.html" class="nav-link"><span class="nav-icon">💰</span> Payments</a>
-            <a href="expenses.html" class="nav-link"><span class="nav-icon">📉</span> Vehicle Expenses</a>
-            <a href="equipment-expenses.html" class="nav-link"><span class="nav-icon">🛠️</span> Equipment Expenses</a>
-            <a href="enquiries.html" class="nav-link"><span class="nav-icon">📨</span> Enquiries</a>
-            <div class="nav-section-title">Drivers</div>
-            <a href="drivers.html" class="nav-link">
-                <span class="nav-icon">🧑‍✈️</span> Drivers
-            </a>
-            <a href="attendance.html" class="nav-link">
-                <span class="nav-icon">📅</span> Attendance & Salary
-            </a>
-        </nav>
-        <div class="sidebar-footer">
-            <button class="btn-logout" onclick="logout()">
-                <span>🚪</span> Logout
-            </button>
-        </div>
-    </aside>
-
-    <!-- Main Content -->
-    <div class="main-content">
-        <header class="topbar">
-            <div class="topbar-title">📊 Dashboard</div>
-            <div class="topbar-right">
-                <span class="topbar-badge">🟢 Admin</span>
-                <span class="topbar-time" id="topbar-time"></span>
-                <button onclick="logout()" style="background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;">🚪 Logout</button>
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <a href="dashboard.html" class="brand-logo">
+                    <div class="brand-icon">🌾</div>
+                    <div class="brand-text">
+                        <h1>SK SONS</h1>
+                        <span>Cultivators</span>
+                    </div>
+                </a>
             </div>
-        </header>
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Main</div>
+                <a href="dashboard.html" class="nav-link active">
+                    <span class="nav-icon">📊</span> Dashboard
+                </a>
+                <div class="nav-section-title">Management</div>
+                <a href="vehicles.html" class="nav-link">
+                    <span class="nav-icon">🚜</span> Vehicles
+                </a>
+                <a href="equipment.html" class="nav-link">
+                    <span class="nav-icon">⚙️</span> Equipment
+                </a>
+                <a href="clients.html" class="nav-link">
+                    <span class="nav-icon">👨‍🌾</span> Clients
+                </a>
+                <a href="work-entries.html" class="nav-link">
+                    <span class="nav-icon">📋</span> Work Entries
+                </a>
+                <a href="payments.html" class="nav-link"><span class="nav-icon">💰</span> Payments</a>
+                <a href="expenses.html" class="nav-link"><span class="nav-icon">📉</span> Vehicle Expenses</a>
+                <a href="equipment-expenses.html" class="nav-link"><span class="nav-icon">🛠️</span> Equipment
+                    Expenses</a>
+                <a href="enquiries.html" class="nav-link"><span class="nav-icon">📨</span> Enquiries</a>
+                <div class="nav-section-title">Drivers</div>
+                <a href="drivers.html" class="nav-link">
+                    <span class="nav-icon">🧑‍✈️</span> Drivers
+                </a>
+                <a href="attendance.html" class="nav-link">
+                    <span class="nav-icon">📅</span> Attendance & Salary
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="btn-logout" onclick="logout()">
+                    <span>⏻</span> Logout
+                </button>
+            </div>
+        </aside>
 
-        <main class="page-content">
-            <!-- Welcome Banner -->
-            <div style="background: linear-gradient(135deg, rgba(34,197,94,0.12), rgba(34,197,94,0.04));
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="topbar">
+                <div class="topbar-title">📊 Dashboard</div>
+                <div class="topbar-right">
+                    <span class="topbar-badge">🟢 Admin</span>
+                    <span class="topbar-time" id="topbar-time"></span>
+                    <button onclick="logout()"
+                        style="background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;">⏻
+                        Logout</button>
+                </div>
+            </header>
+
+            <main class="page-content">
+                <!-- Welcome Banner -->
+                <div style="background: linear-gradient(135deg, rgba(34,197,94,0.12), rgba(34,197,94,0.04));
                         border: 1px solid var(--border-light); border-radius: var(--radius-lg);
                         padding: 24px 28px; margin-bottom: 24px; display:flex; align-items:center; gap:20px;">
-                <div style="font-size:48px;">🌱</div>
-                <div>
-                    <h2 style="font-family:'Poppins',sans-serif; font-size:22px; font-weight:700;">
-                        Welcome, Admin
-                    </h2>
-                    <p style="color:var(--text-muted); margin-top:4px;">
-                        SK SONS Cultivaters Management System — Agricultural Machinery Services
-                    </p>
-                </div>
-            </div>
-
-            <div class="stats-grid" id="statsGrid">
-                <div class="stat-card">
-                    <div class="stat-icon green">🚜</div>
-                    <div class="stat-info">
-                        <div class="stat-label">Total Vehicles</div>
-                        <div class="stat-value" id="stat-vehicles">—</div>
-                        <div class="stat-sub">Active machines</div>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon green">👨‍🌾</div>
-                    <div class="stat-info">
-                        <div class="stat-label">Total Clients</div>
-                        <div class="stat-value" id="stat-clients">—</div>
-                        <div class="stat-sub">Registered farmers</div>
+                    <div style="font-size:48px;">🌱</div>
+                    <div>
+                        <h2 style="font-family:'Poppins',sans-serif; font-size:22px; font-weight:700;">
+                            Welcome, Admin
+                        </h2>
+                        <p style="color:var(--text-muted); margin-top:4px;">
+                            SK SONS Cultivators Management System — Agricultural Machinery Services
+                        </p>
                     </div>
                 </div>
 
-                <div class="stat-card">
-                    <div class="stat-icon blue">🧑‍✈️</div>
-                    <div class="stat-info">
-                        <div class="stat-label">Total Drivers</div>
-                        <div class="stat-value" id="stat-drivers">—</div>
-                        <div class="stat-sub">Registered drivers</div>
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stat-card">
+                        <div class="stat-icon green">🚜</div>
+                        <div class="stat-info">
+                            <div class="stat-label">Total Vehicles</div>
+                            <div class="stat-value" id="stat-vehicles">—</div>
+                            <div class="stat-sub">Active machines</div>
+                        </div>
                     </div>
-                </div>
-                <div class="stat-card accent">
-                    <div class="stat-icon amber">💰</div>
-                    <div class="stat-info">
-                        <div class="stat-label">Total Income</div>
-                        <div class="stat-value" id="stat-income" style="font-size:20px;">—</div>
-                        <div class="stat-sub">All work charges</div>
+                    <div class="stat-card">
+                        <div class="stat-icon green">👨‍🌾</div>
+                        <div class="stat-info">
+                            <div class="stat-label">Total Clients</div>
+                            <div class="stat-value" id="stat-clients">—</div>
+                            <div class="stat-sub">Registered farmers</div>
+                        </div>
                     </div>
-                </div>
-                <div class="stat-card accent">
-                    <div class="stat-icon green">✅</div>
-                    <div class="stat-info">
-                        <div class="stat-label">Amount Received</div>
-                        <div class="stat-value" id="stat-paid" style="font-size:20px;">—</div>
-                        <div class="stat-sub">Total payments in</div>
-                    </div>
-                </div>
-                <div class="stat-card danger">
-                    <div class="stat-icon red">⏳</div>
-                    <div class="stat-info">
-                        <div class="stat-label">Pending Payments</div>
-                        <div class="stat-value" id="stat-pending" style="font-size:20px;">—</div>
-                        <div class="stat-sub">Outstanding balance</div>
-                    </div>
-                </div>
-                <div class="stat-card danger" style="background: linear-gradient(135deg,rgba(239, 68, 68, 0.08),rgba(239, 68, 68, 0.02));">
-                    <div class="stat-icon red">📉</div>
-                    <div class="stat-info">
-                        <div class="stat-label">Vehicle Expenses</div>
-                        <div class="stat-value" id="stat-expenses" style="font-size:20px;">—</div>
-                        <div class="stat-sub">Total operational cost</div>
-                    </div>
-                </div>
-                <div class="stat-card danger" style="background: linear-gradient(135deg,rgba(249, 115, 22, 0.08),rgba(249, 115, 22, 0.02));">
-                    <div class="stat-icon orange">⚙️</div>
-                    <div class="stat-info">
-                        <div class="stat-label">Equipment Expenses</div>
-                        <div class="stat-value" id="stat-equip-expenses" style="font-size:20px;">—</div>
-                        <div class="stat-sub">Maintenance & repairs</div>
-                    </div>
-                </div>
-                <div class="stat-card danger">
-                    <div class="stat-icon red">💸</div>
-                    <div class="stat-info">
-                        <div class="stat-label">Pending Salary</div>
-                        <div class="stat-value" id="stat-salary" style="font-size:20px;">—</div>
-                        <div class="stat-sub">Driver salary due</div>
-                    </div>
-                </div>
-                <div class="stat-card" style="border-color: var(--primary); background: linear-gradient(135deg,rgba(34,197,94,0.08),rgba(34,197,94,0.02));">
-                    <div class="stat-icon green">🏦</div>
-                    <div class="stat-info">
-                        <div class="stat-label">Account Balance</div>
-                        <div class="stat-value" id="stat-balance" style="font-size:20px;">—</div>
-                        <div class="stat-sub">Income − (Salary + Vehicle + Equip)</div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Quick Links -->
-            <div class="section-header">
-                <h2 class="section-title">Quick <span>Actions</span></h2>
-            </div>
-            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:14px; margin-bottom:28px;">
-                <a href="vehicles.html" class="btn btn-secondary" style="justify-content:center; padding:16px 12px; flex-direction:column; gap:10px; text-align:center; height:auto;">
-                    <span style="font-size:28px;">🚜</span>
-                    <span>Manage Vehicles</span>
-                </a>
-                <a href="clients.html" class="btn btn-secondary" style="justify-content:center; padding:16px 12px; flex-direction:column; gap:10px; text-align:center; height:auto;">
-                    <span style="font-size:28px;">👨‍🌾</span>
-                    <span>Manage Clients</span>
-                </a>
-                <a href="work-entries.html" class="btn btn-secondary" style="justify-content:center; padding:16px 12px; flex-direction:column; gap:10px; text-align:center; height:auto;">
-                    <span style="font-size:28px;">📋</span>
-                    <span>Work Entries</span>
-                </a>
-                <a href="payments.html" class="btn btn-secondary" style="justify-content:center; padding:16px 12px; flex-direction:column; gap:10px; text-align:center; height:auto;">
-                    <span style="font-size:28px;">💰</span>
-                    <span>Payments</span>
-                </a>
-                <a href="drivers.html" class="btn btn-secondary" style="justify-content:center; padding:16px 12px; flex-direction:column; gap:10px; text-align:center; height:auto;">
-                    <span style="font-size:28px;">🧑‍✈️</span>
-                    <span>Drivers</span>
-                </a>
-                <a href="attendance.html" class="btn btn-secondary" style="justify-content:center; padding:16px 12px; flex-direction:column; gap:10px; text-align:center; height:auto;">
-                    <span style="font-size:28px;">📅</span>
-                    <span>Attendance</span>
-                </a>
-            </div>
-
-            <!-- Rate Card -->
-            <div class="section-header">
-                <h2 class="section-title">Service Charge <span>Rates</span></h2>
-            </div>
-            <div class="table-card">
-                <div class="table-wrap">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Vehicle/Service</th>
-                                <th>Rate per Minute</th>
-                                <th>Rate per Hour</th>
-                                <th>Pricing Type</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>🔵 Rotavator</td>
-                                <td class="amount-positive">₹20.00 / min</td>
-                                <td class="amount-positive">₹1,200.00 / hr</td>
-                                <td><span class="badge badge-green">Auto</span></td>
-                            </tr>
-                            <tr>
-                                <td>🟢 9-Tine Cultivator</td>
-                                <td class="amount-positive">₹16.66 / min</td>
-                                <td class="amount-positive">₹999.60 / hr</td>
-                                <td><span class="badge badge-green">Auto</span></td>
-                            </tr>
-                            <tr>
-                                <td>🟡 Half Cage Wheel</td>
-                                <td class="amount-positive">₹16.66 / min</td>
-                                <td class="amount-positive">₹999.60 / hr</td>
-                                <td><span class="badge badge-green">Auto</span></td>
-                            </tr>
-                            <tr>
-                                <td>🟠 Loader (Tipper)</td>
-                                <td class="amount-zero">Manual entry</td>
-                                <td class="amount-zero">Manual entry</td>
-                                <td><span class="badge badge-amber">Manual</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="stat-card">
+                        <div class="stat-icon blue">🧑‍✈️</div>
+                        <div class="stat-info">
+                            <div class="stat-label">Total Drivers</div>
+                            <div class="stat-value" id="stat-drivers">—</div>
+                            <div class="stat-sub">Registered drivers</div>
+                        </div>
+                    </div>
+                    <div class="stat-card accent">
+                        <div class="stat-icon amber">💰</div>
+                        <div class="stat-info">
+                            <div class="stat-label">Total Income</div>
+                            <div class="stat-value" id="stat-income" style="font-size:20px;">—</div>
+                            <div class="stat-sub">All work charges</div>
+                        </div>
+                    </div>
+                    <div class="stat-card accent">
+                        <div class="stat-icon green">✅</div>
+                        <div class="stat-info">
+                            <div class="stat-label">Amount Received</div>
+                            <div class="stat-value" id="stat-paid" style="font-size:20px;">—</div>
+                            <div class="stat-sub">Total payments in</div>
+                        </div>
+                    </div>
+                    <div class="stat-card danger">
+                        <div class="stat-icon red">⏳</div>
+                        <div class="stat-info">
+                            <div class="stat-label">Pending Payments</div>
+                            <div class="stat-value" id="stat-pending" style="font-size:20px;">—</div>
+                            <div class="stat-sub">Outstanding balance</div>
+                        </div>
+                    </div>
+                    <div class="stat-card danger"
+                        style="background: linear-gradient(135deg,rgba(239, 68, 68, 0.08),rgba(239, 68, 68, 0.02));">
+                        <div class="stat-icon red">📉</div>
+                        <div class="stat-info">
+                            <div class="stat-label">Vehicle Expenses</div>
+                            <div class="stat-value" id="stat-expenses" style="font-size:20px;">—</div>
+                            <div class="stat-sub">Total operational cost</div>
+                        </div>
+                    </div>
+                    <div class="stat-card danger"
+                        style="background: linear-gradient(135deg,rgba(249, 115, 22, 0.08),rgba(249, 115, 22, 0.02));">
+                        <div class="stat-icon orange">⚙️</div>
+                        <div class="stat-info">
+                            <div class="stat-label">Equipment Expenses</div>
+                            <div class="stat-value" id="stat-equip-expenses" style="font-size:20px;">—</div>
+                            <div class="stat-sub">Maintenance & repairs</div>
+                        </div>
+                    </div>
+                    <div class="stat-card danger">
+                        <div class="stat-icon red">💸</div>
+                        <div class="stat-info">
+                            <div class="stat-label">Pending Salary</div>
+                            <div class="stat-value" id="stat-salary" style="font-size:20px;">—</div>
+                            <div class="stat-sub">Driver salary due</div>
+                        </div>
+                    </div>
+                    <div class="stat-card"
+                        style="border-color: var(--primary); background: linear-gradient(135deg,rgba(34,197,94,0.08),rgba(34,197,94,0.02));">
+                        <div class="stat-icon green">🏦</div>
+                        <div class="stat-info">
+                            <div class="stat-label">Final Closing Balance</div>
+                            <div class="stat-value" id="stat-balance" style="font-size:20px;">—</div>
+                            <div class="stat-sub">Actual cash balance (pending excluded)</div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </main>
+
+                <!-- Quick Links -->
+                <div class="section-header">
+                    <h2 class="section-title">Quick <span>Actions</span></h2>
+                    <button class="btn btn-primary" onclick="openBankStmtModal()" style="background:linear-gradient(135deg,#1d4ed8,#1e40af);border:none;">🏦 Bank Statement</button>
+                </div>
+                <div
+                    style="display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:14px; margin-bottom:28px;">
+                    <a href="vehicles.html" class="btn btn-secondary"
+                        style="justify-content:center; padding:16px 12px; flex-direction:column; gap:10px; text-align:center; height:auto;">
+                        <span style="font-size:28px;">🚜</span>
+                        <span>Manage Vehicles</span>
+                    </a>
+                    <a href="clients.html" class="btn btn-secondary"
+                        style="justify-content:center; padding:16px 12px; flex-direction:column; gap:10px; text-align:center; height:auto;">
+                        <span style="font-size:28px;">👨‍🌾</span>
+                        <span>Manage Clients</span>
+                    </a>
+                    <a href="work-entries.html" class="btn btn-secondary"
+                        style="justify-content:center; padding:16px 12px; flex-direction:column; gap:10px; text-align:center; height:auto;">
+                        <span style="font-size:28px;">📋</span>
+                        <span>Work Entries</span>
+                    </a>
+                    <a href="payments.html" class="btn btn-secondary"
+                        style="justify-content:center; padding:16px 12px; flex-direction:column; gap:10px; text-align:center; height:auto;">
+                        <span style="font-size:28px;">💰</span>
+                        <span>Payments</span>
+                    </a>
+                    <a href="drivers.html" class="btn btn-secondary"
+                        style="justify-content:center; padding:16px 12px; flex-direction:column; gap:10px; text-align:center; height:auto;">
+                        <span style="font-size:28px;">🧑‍✈️</span>
+                        <span>Drivers</span>
+                    </a>
+                    <a href="attendance.html" class="btn btn-secondary"
+                        style="justify-content:center; padding:16px 12px; flex-direction:column; gap:10px; text-align:center; height:auto;">
+                        <span style="font-size:28px;">📅</span>
+                        <span>Attendance</span>
+                    </a>
+                </div>
+
+                <!-- Rate Card -->
+                <div class="section-header">
+                    <h2 class="section-title">Service Charge <span>Rates</span></h2>
+                </div>
+                <div class="table-card">
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Vehicle/Service</th>
+                                    <th>Rate per Minute</th>
+                                    <th>Rate per Hour</th>
+                                    <th>Pricing Type</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>🔵 Rotavator</td>
+                                    <td class="amount-positive">₹20.00 / min</td>
+                                    <td class="amount-positive">₹1,200.00 / hr</td>
+                                    <td><span class="badge badge-green">Auto</span></td>
+                                </tr>
+                                <tr>
+                                    <td>🟢 9-Tine Cultivator</td>
+                                    <td class="amount-positive">₹16.66 / min</td>
+                                    <td class="amount-positive">₹999.60 / hr</td>
+                                    <td><span class="badge badge-green">Auto</span></td>
+                                </tr>
+                                <tr>
+                                    <td>🟡 Half Cage Wheel</td>
+                                    <td class="amount-positive">₹16.66 / min</td>
+                                    <td class="amount-positive">₹999.60 / hr</td>
+                                    <td><span class="badge badge-green">Auto</span></td>
+                                </tr>
+                                <tr>
+                                    <td>🟠 Loader (Tipper)</td>
+                                    <td class="amount-zero">Manual entry</td>
+                                    <td class="amount-zero">Manual entry</td>
+                                    <td><span class="badge badge-amber">Manual</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+<!-- Financial Statement Modal -->
+<div class="modal-overlay" id="financialModal">
+    <div class="modal" style="max-width:480px;">
+        <div class="modal-header">
+            <span class="modal-title">📊 Generate Financial Statement</span>
+            <button class="modal-close" onclick="closeModal('financialModal')">×</button>
+        </div>
+        <div class="modal-body">
+            <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">Generate a complete PDF financial report with income, payments, expenses, and net account balance.</p>
+            <form class="form-grid">
+                <div class="form-group span-2" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                    <div>
+                        <label>From Date</label>
+                        <input type="date" id="fStmtFrom">
+                    </div>
+                    <div>
+                        <label>To Date</label>
+                        <input type="date" id="fStmtTo">
+                    </div>
+                </div>
+                <div class="form-group span-2">
+                    <label>Quick Range</label>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                        <button type="button" class="btn btn-secondary" style="font-size:12px;padding:6px 12px;" onclick="setStmtRange('all')">All Time</button>
+                        <button type="button" class="btn btn-secondary" style="font-size:12px;padding:6px 12px;" onclick="setStmtRange('month')">This Month</button>
+                        <button type="button" class="btn btn-secondary" style="font-size:12px;padding:6px 12px;" onclick="setStmtRange('lastmonth')">Last Month</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('financialModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="generateFinancialPDF()" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);border:none;">⬇️ Download Statement</button>
+        </div>
     </div>
 </div>
 
-<script src="js/config.js"></script>
-<script src="js/api.js"></script>
-<script>
-    async function loadDashboardStats() {
-        try {
-            const stats = await api.get('/dashboard/stats');
-            document.getElementById('stat-vehicles').textContent = stats.totalVehicles || 0;
-            document.getElementById('stat-clients').textContent = stats.totalClients || 0;
-            document.getElementById('stat-drivers').textContent = stats.totalDrivers || 0;
-            document.getElementById('stat-income').textContent = formatCurrency(stats.totalIncome || 0);
-            document.getElementById('stat-paid').textContent = formatCurrency(stats.totalPaid || 0);
-            document.getElementById('stat-pending').textContent = formatCurrency(stats.totalPending || 0);
-            document.getElementById('stat-salary').textContent = formatCurrency(stats.pendingSalary || 0);
-            
-            const expensesEl = document.getElementById('stat-expenses');
-            if(expensesEl) expensesEl.textContent = formatCurrency(stats.totalVehicleExpenses || 0);
+<!-- Bank Statement Modal -->
+<div class="modal-overlay" id="bankStmtModal">
+    <div class="modal" style="max-width:480px;">
+        <div class="modal-header">
+            <span class="modal-title">🏦 Generate Bank Statement</span>
+            <button class="modal-close" onclick="closeModal('bankStmtModal')">×</button>
+        </div>
+        <div class="modal-body">
+            <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">Generate a chronological account statement with each transaction, running balance — just like a bank statement.</p>
+            <form class="form-grid">
+                <div class="form-group span-2" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                    <div>
+                        <label>From Date</label>
+                        <input type="date" id="bStmtFrom">
+                    </div>
+                    <div>
+                        <label>To Date</label>
+                        <input type="date" id="bStmtTo">
+                    </div>
+                </div>
+                <div class="form-group span-2">
+                    <label>Quick Range</label>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                        <button type="button" class="btn btn-secondary" style="font-size:12px;padding:6px 12px;" onclick="setBankRange('all')">All Time</button>
+                        <button type="button" class="btn btn-secondary" style="font-size:12px;padding:6px 12px;" onclick="setBankRange('month')">This Month</button>
+                        <button type="button" class="btn btn-secondary" style="font-size:12px;padding:6px 12px;" onclick="setBankRange('lastmonth')">Last Month</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('bankStmtModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="generateBankStatementPDF()" style="background:linear-gradient(135deg,#16a34a,#15803d);border:none;">⬇️ Download Bank Statement</button>
+        </div>
+    </div>
+</div>
 
-            const equipExpensesEl = document.getElementById('stat-equip-expenses');
-            if(equipExpensesEl) equipExpensesEl.textContent = formatCurrency(stats.totalEquipmentExpenses || 0);
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        // ─── Dashboard Stats ───
+        async function loadDashboardStats() {
+            try {
+                const stats = await api.get('/dashboard/stats');
+                document.getElementById('stat-vehicles').textContent = stats.totalVehicles || 0;
+                document.getElementById('stat-clients').textContent = stats.totalClients || 0;
+                document.getElementById('stat-drivers').textContent = stats.totalDrivers || 0;
+                document.getElementById('stat-income').textContent = formatCurrency(stats.totalIncome || 0);
+                document.getElementById('stat-paid').textContent = formatCurrency(stats.totalPaid || 0);
+                document.getElementById('stat-pending').textContent = formatCurrency(stats.totalPending || 0);
+                document.getElementById('stat-salary').textContent = formatCurrency(stats.pendingSalary || 0);
 
-            const balance = stats.accountBalance || 0;
-            const balanceEl = document.getElementById('stat-balance');
-            balanceEl.textContent = formatCurrency(balance);
-            balanceEl.style.color = balance >= 0 ? 'var(--success)' : 'var(--danger)';
-        } catch (err) {
-            console.error('Failed to load stats:', err);
+                const expensesEl = document.getElementById('stat-expenses');
+                if (expensesEl) expensesEl.textContent = formatCurrency(stats.totalVehicleExpenses || 0);
+
+                const equipExpensesEl = document.getElementById('stat-equip-expenses');
+                if (equipExpensesEl) equipExpensesEl.textContent = formatCurrency(stats.totalEquipmentExpenses || 0);
+
+                const balance = stats.accountBalance || 0;
+                const balanceEl = document.getElementById('stat-balance');
+                balanceEl.textContent = formatCurrency(balance);
+                balanceEl.style.color = balance >= 0 ? 'var(--success)' : 'var(--danger)';
+            } catch (err) {
+                console.error('Failed to load stats:', err);
+            }
         }
-    }
 
-    document.addEventListener('DOMContentLoaded', loadDashboardStats);
-</script>
+        document.addEventListener('DOMContentLoaded', loadDashboardStats);
+
+        // ─── Financial Statement PDF ───
+        function openFinancialModal() {
+            setStmtRange('all');
+            openModal('financialModal');
+        }
+
+        function setStmtRange(type) {
+            const today = new Date();
+            let from = '', to = '';
+            if (type === 'month') {
+                from = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+                to   = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];
+            } else if (type === 'lastmonth') {
+                from = new Date(today.getFullYear(), today.getMonth() - 1, 1).toISOString().split('T')[0];
+                to   = new Date(today.getFullYear(), today.getMonth(), 0).toISOString().split('T')[0];
+            }
+            document.getElementById('fStmtFrom').value = from;
+            document.getElementById('fStmtTo').value   = to;
+        }
+
+        async function generateFinancialPDF() {
+            const fromDate = document.getElementById('fStmtFrom').value;
+            const toDate   = document.getElementById('fStmtTo').value;
+            if (fromDate && toDate && fromDate > toDate) { showToast('From date must be before To date', 'error'); return; }
+
+            showToast('Fetching financial data...', 'success');
+
+            // Fetch all modules
+            const [workEntries, payments, vehicleExp, equipExp, attendance] = await Promise.all([
+                api.get('/work-entries').catch(() => []),
+                api.get('/payments').catch(() => []),
+                api.get('/expenses').catch(() => []),
+                api.get('/equipment-expenses').catch(() => []),
+                api.get('/attendance').catch(() => [])
+            ]);
+
+            // Date filter helper
+            const inRange = (dateStr) => {
+                if (!dateStr) return true;
+                const d = dateStr.substring(0, 10);
+                if (fromDate && d < fromDate) return false;
+                if (toDate   && d > toDate)   return false;
+                return true;
+            };
+
+            // Calculate totals
+            const filteredWork   = workEntries.filter(w => inRange(w.workDate || w.date));
+            const filteredPay    = payments.filter(p => inRange(p.paymentDate || p.date));
+            const filteredVExp   = vehicleExp.filter(e => inRange(e.date));
+            const filteredEqExp  = equipExp.filter(e => inRange(e.date));
+            const filteredAtt    = attendance.filter(a => inRange(a.date));
+
+            const totalIncome       = filteredWork.reduce((s, w) => s + (w.totalAmount || w.amount || 0), 0);
+            const totalReceived     = filteredPay.reduce((s, p) => s + (p.paidAmount || p.amount || 0), 0);
+            const totalVehicleExp   = filteredVExp.reduce((s, e) => s + (e.amount || 0), 0);
+            const totalEquipExp     = filteredEqExp.reduce((s, e) => s + (e.amount || 0), 0);
+            const totalSalaryPaid   = filteredAtt.filter(a => a.present === true).reduce((s, a) => s + (a.paidAmount || 0), 0);
+            const totalPending      = totalIncome - totalReceived;
+            const totalExpenses     = totalVehicleExp + totalEquipExp + totalSalaryPaid;
+            const netBalance        = totalIncome - totalExpenses;
+
+            // Build PDF
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+            const pageW = doc.internal.pageSize.getWidth();
+            const margin = 15;
+
+            // ── Header ──
+            doc.setFillColor(21, 128, 61);
+            doc.rect(0, 0, pageW, 42, 'F');
+            doc.setFont('helvetica', 'bold'); doc.setFontSize(20); doc.setTextColor(255, 255, 255);
+            doc.text('SK SONS CULTIVATORS', pageW / 2, 13, { align: 'center' });
+            doc.setFontSize(10); doc.setFont('helvetica', 'normal');
+            doc.text('Agricultural Machinery Services \u2014 Namakkal', pageW / 2, 20, { align: 'center' });
+            doc.text('Phone: 9677628533', pageW / 2, 26, { align: 'center' });
+
+            doc.setFillColor(255, 255, 255);
+            doc.roundedRect(margin, 35, pageW - margin * 2, 11, 2, 2, 'F');
+            doc.setTextColor(21, 128, 61); doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
+            doc.text('FINANCIAL ACCOUNT STATEMENT', pageW / 2, 42, { align: 'center' });
+
+            // ── Period Info Box ──
+            let y = 56;
+            const fmtDate = d => new Date(d + 'T00:00:00').toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' });
+            const periodStr = (!fromDate && !toDate) ? 'All Time' : `${fromDate ? fmtDate(fromDate) : 'Beginning'} to ${toDate ? fmtDate(toDate) : 'Today'}`;
+            doc.setFillColor(240, 253, 244); doc.roundedRect(margin, y - 4, pageW - margin * 2, 18, 3, 3, 'F');
+            doc.setDrawColor(187, 247, 208); doc.roundedRect(margin, y - 4, pageW - margin * 2, 18, 3, 3, 'S');
+            doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(107, 114, 128);
+            doc.text('Report Period:', margin + 5, y + 2); doc.text('Generated On:', pageW / 2 + 5, y + 2);
+            doc.setFont('helvetica', 'bold'); doc.setTextColor(15, 23, 42); doc.setFontSize(9.5);
+            doc.text(periodStr, margin + 5, y + 9);
+            doc.text(new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' }), pageW / 2 + 5, y + 9);
+
+            // ── Income Section ──
+            y += 26;
+            doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(21, 128, 61);
+            doc.text('A. INCOME & RECEIVABLES', margin, y); y += 2;
+            doc.autoTable({
+                startY: y,
+                head: [['#', 'Description', 'Amount (Rs.)']],
+                body: [
+                    ['1', 'Total Income (All Work Charges)', totalIncome.toFixed(2)],
+                    ['2', 'Amount Received from Clients', totalReceived.toFixed(2)],
+                    ['3', 'Pending Balance (Receivable)', totalPending.toFixed(2)],
+                ],
+                theme: 'grid',
+                headStyles: { fillColor: [21, 128, 61], textColor: 255, fontStyle: 'bold', fontSize: 9 },
+                bodyStyles: { fontSize: 9, textColor: [31, 41, 55] },
+                alternateRowStyles: { fillColor: [240, 253, 244] },
+                columnStyles: { 0:{cellWidth:12}, 1:{cellWidth:130}, 2:{cellWidth:40, halign:'right'} },
+                margin: { left: margin, right: margin }
+            });
+
+            // ── Expenses Section ──
+            y = doc.lastAutoTable.finalY + 8;
+            doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(239, 68, 68);
+            doc.text('B. OPERATIONAL EXPENSES', margin, y); y += 2;
+            doc.autoTable({
+                startY: y,
+                head: [['#', 'Description', 'Amount (Rs.)']],
+                body: [
+                    ['1', 'Total Vehicle Expenses (Diesel, Service, Maintenance)', totalVehicleExp.toFixed(2)],
+                    ['2', 'Total Equipment Expenses (Repair, Service, Parts)', totalEquipExp.toFixed(2)],
+                    ['3', 'Total Driver Salary Paid', totalSalaryPaid.toFixed(2)],
+                    ['', 'Total Expenses', totalExpenses.toFixed(2)],
+                ],
+                theme: 'grid',
+                headStyles: { fillColor: [239, 68, 68], textColor: 255, fontStyle: 'bold', fontSize: 9 },
+                bodyStyles: { fontSize: 9, textColor: [31, 41, 55] },
+                alternateRowStyles: { fillColor: [255, 241, 242] },
+                columnStyles: { 0:{cellWidth:12}, 1:{cellWidth:130}, 2:{cellWidth:40, halign:'right'} },
+                margin: { left: margin, right: margin },
+                didParseCell: (data) => {
+                    if (data.row.index === 3) {
+                        data.cell.styles.fontStyle = 'bold';
+                        data.cell.styles.fillColor = [254, 226, 226];
+                    }
+                }
+            });
+
+            // ── Net Balance Banner ──
+            const bannerY = doc.lastAutoTable.finalY + 8;
+            const bannerColor = netBalance >= 0 ? [21, 128, 61] : [239, 68, 68];
+            doc.setFillColor(...bannerColor);
+            doc.roundedRect(margin, bannerY, pageW - margin * 2, 26, 3, 3, 'F');
+
+            doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(187, 247, 208);
+            doc.text('C. NET ACCOUNT BALANCE', margin + 8, bannerY + 8);
+            doc.setFontSize(8); doc.setTextColor(187, 247, 208);
+            doc.text('Formula: Income \u2212 (Driver Salary + Vehicle Expenses + Equipment Expenses)', margin + 8, bannerY + 15);
+            doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.setTextColor(255, 255, 255);
+            doc.text(`Rs. ${netBalance.toFixed(2)}`, pageW - margin - 5, bannerY + 15, { align: 'right' });
+
+            // ── Summary Table ──
+            const sumY = bannerY + 34;
+            doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(21, 128, 61);
+            doc.text('D. SUMMARY', margin, sumY);
+            doc.autoTable({
+                startY: sumY + 2,
+                body: [
+                    ['Total Income (Work Charges)', `Rs. ${totalIncome.toFixed(2)}`],
+                    ['Total Amount Received', `Rs. ${totalReceived.toFixed(2)}`],
+                    ['Pending from Clients', `Rs. ${totalPending.toFixed(2)}`],
+                    ['Total Vehicle Expenses', `Rs. ${totalVehicleExp.toFixed(2)}`],
+                    ['Total Equipment Expenses', `Rs. ${totalEquipExp.toFixed(2)}`],
+                    ['Total Driver Salary Paid', `Rs. ${totalSalaryPaid.toFixed(2)}`],
+                    ['NET ACCOUNT BALANCE', `Rs. ${netBalance.toFixed(2)}`],
+                ],
+                theme: 'grid',
+                bodyStyles: { fontSize: 9, textColor: [31, 41, 55] },
+                alternateRowStyles: { fillColor: [240, 253, 244] },
+                columnStyles: { 0:{cellWidth:130}, 1:{cellWidth:52, halign:'right', fontStyle:'bold'} },
+                margin: { left: margin, right: margin },
+                didParseCell: (data) => {
+                    if (data.row.index === 6) {
+                        data.cell.styles.fontStyle = 'bold';
+                        data.cell.styles.fillColor = netBalance >= 0 ? [187, 247, 208] : [254, 202, 202];
+                        data.cell.styles.fontSize = 10;
+                    }
+                }
+            });
+
+            // ── Signatures ──
+            const sigY = doc.lastAutoTable.finalY + 14;
+            doc.setDrawColor(209, 213, 219); doc.setLineWidth(0.3);
+            doc.line(margin, sigY, margin + 60, sigY);
+            doc.line(pageW - margin - 60, sigY, pageW - margin, sigY);
+            doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(107, 114, 128);
+            doc.text('Prepared By', margin + 2, sigY + 5);
+            doc.text('Authorized Signature', pageW - margin - 58, sigY + 5);
+            doc.setFont('helvetica', 'bold'); doc.setTextColor(15, 23, 42); doc.setFontSize(9);
+            doc.text('SK SONS Cultivators', margin + 2, sigY + 10);
+            doc.text('SK SONS Cultivators', pageW - margin - 58, sigY + 10);
+
+            // ── Footer ──
+            const footerY = doc.internal.pageSize.getHeight() - 10;
+            doc.setDrawColor(229, 231, 235); doc.setLineWidth(0.3);
+            doc.line(margin, footerY - 4, pageW - margin, footerY - 4);
+            doc.setFont('helvetica', 'italic'); doc.setFontSize(7.5); doc.setTextColor(156, 163, 175);
+            doc.text('System-generated financial statement. SK SONS Cultivators \u2014 Agricultural Machinery Services, Namakkal.', pageW / 2, footerY, { align: 'center' });
+
+            const range = (!fromDate && !toDate) ? 'AllTime' : `${fromDate||'Start'}_to_${toDate||'Now'}`;
+            doc.save(`FinancialStatement_SKSONS_${range}.pdf`);
+            closeModal('financialModal');
+            showToast('Financial statement downloaded!', 'success');
+        }
+
+        // ─── Bank Statement ──────────────────────────────────────────────────
+        function openBankStmtModal() { setBankRange('all'); openModal('bankStmtModal'); }
+
+        function setBankRange(type) {
+            const today = new Date();
+            let from = '', to = '';
+            if (type === 'month') {
+                from = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+                to   = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];
+            } else if (type === 'lastmonth') {
+                from = new Date(today.getFullYear(), today.getMonth() - 1, 1).toISOString().split('T')[0];
+                to   = new Date(today.getFullYear(), today.getMonth(), 0).toISOString().split('T')[0];
+            }
+            document.getElementById('bStmtFrom').value = from;
+            document.getElementById('bStmtTo').value   = to;
+        }
+
+        async function generateBankStatementPDF() {
+            const fromDate = document.getElementById('bStmtFrom').value;
+            const toDate   = document.getElementById('bStmtTo').value;
+            if (fromDate && toDate && fromDate > toDate) { showToast('From date must be before To date','error'); return; }
+            showToast('Building bank statement...', 'success');
+
+            const [workEntries, payments, vehicleExp, equipExp, attendance] = await Promise.all([
+                api.get('/work-entries').catch(() => []),
+                api.get('/payments').catch(() => []),
+                api.get('/expenses').catch(() => []),
+                api.get('/equipment-expenses').catch(() => []),
+                api.get('/attendance').catch(() => [])
+            ]);
+
+            const inRange = ds => {
+                if (!ds) return true;
+                const d = ds.substring(0,10);
+                if (fromDate && d < fromDate) return false;
+                if (toDate   && d > toDate)   return false;
+                return true;
+            };
+            const fmtD = ds => {
+                if (!ds) return '';
+                return new Date(ds.substring(0,10)+'T00:00:00').toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+            };
+
+            const txns = [];
+            workEntries.filter(w => inRange(w.workDate||w.date)).forEach(w => {
+                txns.push({ date: w.workDate||w.date||'', desc: `Work Income — ${w.vehicleName||'Service'} (${w.client?.name||w.clientName||'Client'})`, credit: w.totalAmount||w.amount||0, debit: 0 });
+            });
+            payments.filter(p => inRange(p.paymentDate||p.date)).forEach(p => {
+                txns.push({ date: p.paymentDate||p.date||'', desc: `Payment Received — ${p.client?.name||p.clientName||'Client'}`, credit: p.paidAmount||p.amount||0, debit: 0 });
+            });
+            vehicleExp.filter(e => inRange(e.date)).forEach(e => {
+                txns.push({ date: e.date||'', desc: `Vehicle Expense — ${e.expenseType||'Expense'} (${e.vehicleName||e.vehicle?.name||'Vehicle'})`, credit: 0, debit: e.amount||0 });
+            });
+            equipExp.filter(e => inRange(e.date)).forEach(e => {
+                txns.push({ date: e.date||'', desc: `Equipment Expense — ${e.expenseType||'Expense'} (${e.equipmentName||e.equipment?.name||'Equipment'})`, credit: 0, debit: e.amount||0 });
+            });
+            attendance.filter(a => inRange(a.date) && a.present === true && (a.paidAmount || 0) > 0).forEach(a => {
+                const driverName = a.driver?.name || a.driverName || 'Driver';
+                txns.push({ date: a.date||'', desc: `Driver Salary — ${driverName}`, credit: 0, debit: a.paidAmount || 0 });
+            });
+
+            txns.sort((a,b) => (a.date||'').localeCompare(b.date||''));
+            if (!txns.length) { showToast('No transactions found for the selected period.','error'); return; }
+
+            let runBal = 0;
+            const rows = txns.map((t, i) => {
+                runBal += t.credit - t.debit;
+                return [String(i+1), fmtD(t.date), t.desc,
+                    t.credit > 0 ? `Rs. ${t.credit.toFixed(2)}` : '-',
+                    t.debit  > 0 ? `Rs. ${t.debit.toFixed(2)}`  : '-',
+                    `Rs. ${runBal.toFixed(2)}`];
+            });
+            const finalBalance = runBal;
+
+            const { jsPDF } = window.jspdf;
+            const doc  = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+            const pageW = doc.internal.pageSize.getWidth();
+            const margin = 12;
+
+            // Header
+            doc.setFillColor(21,128,61); doc.rect(0,0,pageW,40,'F');
+            doc.setFont('helvetica','bold'); doc.setFontSize(18); doc.setTextColor(255,255,255);
+            doc.text('SK SONS CULTIVATORS', pageW/2, 12, {align:'center'});
+            doc.setFontSize(9); doc.setFont('helvetica','normal');
+            doc.text('Agricultural Machinery Services \u2014 Namakkal  |  Ph: 9677628533', pageW/2, 19, {align:'center'});
+            doc.setFillColor(255,255,255); doc.roundedRect(margin,27,pageW-margin*2,14,2,2,'F');
+            doc.setTextColor(21,128,61); doc.setFont('helvetica','bold'); doc.setFontSize(11);
+            doc.text('ACCOUNT STATEMENT', pageW/2, 36, {align:'center'});
+
+            // Period info
+            let y = 51;
+            const periodStr = (!fromDate&&!toDate) ? 'All Time' : `${fromDate?fmtD(fromDate):'Beginning'} to ${toDate?fmtD(toDate):'Today'}`;
+            doc.setFillColor(240,253,244); doc.roundedRect(margin, y-3, pageW-margin*2, 16, 2,2,'F');
+            doc.setDrawColor(187,247,208); doc.roundedRect(margin, y-3, pageW-margin*2,16,2,2,'S');
+            doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(100,116,139);
+            doc.text('Account Name:', margin+5, y+3);
+            doc.text('Period:', margin+90, y+3);
+            doc.text('Generated On:', margin+170, y+3);
+            doc.setFont('helvetica','bold'); doc.setTextColor(15,23,42); doc.setFontSize(9);
+            doc.text('SK SONS Cultivators', margin+5, y+10);
+            doc.text(periodStr, margin+90, y+10);
+            doc.text(new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'}), margin+170, y+10);
+
+            // Transaction table
+            doc.autoTable({
+                startY: y+20,
+                head: [['#','Date','Description','Credit (Rs.)','Debit (Rs.)','Balance (Rs.)']],
+                body: rows,
+                theme: 'grid',
+                headStyles: { fillColor:[21,128,61], textColor:255, fontStyle:'bold', fontSize:8.5, halign:'center' },
+                bodyStyles: { fontSize:8, textColor:[31,41,55] },
+                columnStyles: {
+                    0:{cellWidth:10, halign:'center'},
+                    1:{cellWidth:27},
+                    2:{cellWidth:'auto'},
+                    3:{cellWidth:32, halign:'right'},
+                    4:{cellWidth:32, halign:'right'},
+                    5:{cellWidth:36, halign:'right', fontStyle:'bold'}
+                },
+                margin: { left:margin, right:margin },
+                didParseCell: (data) => {
+                    if (data.section !== 'body') return;
+                    const t = txns[data.row.index];
+                    if (!t) return;
+                    if (t.credit > 0 && data.column.index === 3) { data.cell.styles.textColor=[21,128,61]; data.cell.styles.fontStyle='bold'; }
+                    if (t.debit  > 0 && data.column.index === 4) { data.cell.styles.textColor=[220,38,38]; data.cell.styles.fontStyle='bold'; }
+                    if (data.column.index === 5) {
+                        let bal = 0;
+                        for (let i=0; i<=data.row.index; i++) bal += txns[i].credit - txns[i].debit;
+                        data.cell.styles.textColor = bal >= 0 ? [21,128,61] : [220,38,38];
+                    }
+                },
+                didDrawPage: () => {
+                    const fY = doc.internal.pageSize.getHeight() - 8;
+                    doc.setDrawColor(229,231,235); doc.setLineWidth(0.2);
+                    doc.line(margin, fY-3, pageW-margin, fY-3);
+                    doc.setFont('helvetica','italic'); doc.setFontSize(7); doc.setTextColor(156,163,175);
+                    doc.text('SK SONS Cultivators \u2014 Account Statement \u2014 System Generated', pageW/2, fY, {align:'center'});
+                    doc.text(`Page ${doc.internal.getCurrentPageInfo().pageNumber}`, pageW-margin, fY, {align:'right'});
+                }
+            });
+
+            // Final Balance Banner
+            const bannerY = doc.lastAutoTable.finalY + 6;
+            const bCol = finalBalance >= 0 ? [21,128,61] : [220,38,38];
+            doc.setFillColor(...bCol); doc.roundedRect(margin, bannerY, pageW-margin*2, 20, 3,3,'F');
+            doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(255,255,255);
+            doc.text('FINAL CLOSING BALANCE', margin+10, bannerY+8);
+            doc.setFontSize(14);
+            doc.text(`Rs. ${finalBalance.toFixed(2)}`, pageW-margin-10, bannerY+13, {align:'right'});
+            doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(210,250,210);
+            doc.text(`Total Transactions: ${txns.length}  |  Credits: ${txns.filter(t=>t.credit>0).length}  |  Debits: ${txns.filter(t=>t.debit>0).length}`, margin+10, bannerY+16);
+
+            const range2 = (!fromDate&&!toDate) ? 'AllTime' : `${fromDate||'Start'}_to_${toDate||'Now'}`;
+            doc.save(`AccountStatement_SKSONS_${range2}.pdf`);
+            closeModal('bankStmtModal');
+            showToast('Bank statement downloaded!', 'success');
+        }
+    </script>
 </body>
-</html>
+</html>

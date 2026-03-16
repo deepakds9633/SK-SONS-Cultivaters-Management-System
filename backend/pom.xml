@@ -13,10 +13,10 @@
     </parent>
 
     <groupId>com.sksons</groupId>
-    <artifactId>cultivaters</artifactId>
+    <artifactId>Cultivators</artifactId>
     <version>1.0.0</version>
-    <name>SK SONS Cultivaters Management System</name>
-    <description>Agricultural Machinery Management System for SK SONS Cultivaters</description>
+    <name>SK SONS Cultivators Management System</name>
+    <description>Agricultural Machinery Management System for SK SONS Cultivators</description>
 
     <properties>
         <java.version>17</java.version>

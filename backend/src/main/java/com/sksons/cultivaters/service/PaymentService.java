@@ -14,7 +14,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.aggregation.TypedAggregation;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 
 @Service
@@ -152,16 +151,9 @@ public class PaymentService {
     }
 
     public Double getTotalPending() {
-        TypedAggregation<Payment> aggregation = newAggregation(Payment.class,
-            match(org.springframework.data.mongodb.core.query.Criteria.where("remainingBalance").gt(0)),
-            group().sum("remainingBalance").as("total")
-        );
-        AggregationResults<org.bson.Document> result = mongoTemplate.aggregate(aggregation, org.bson.Document.class);
-        org.bson.Document doc = result.getUniqueMappedResult();
-        if (doc != null && doc.get("total") != null) {
-            return ((Number) doc.get("total")).doubleValue();
-        }
-        return 0.0;
+        return clientRepository.findAll().stream()
+            .mapToDouble(c -> c.getPendingBalance() != null ? c.getPendingBalance() : 0.0)
+            .sum();
     }
 
 }

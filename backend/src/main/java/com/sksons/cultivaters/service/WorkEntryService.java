@@ -86,6 +86,19 @@ public class WorkEntryService {
                     workEntry.setTotalCost(0.0);
                 }
             }
+        } else if (workEntry.getStartTime() == null && workEntry.getEndTime() == null
+                && workEntry.getTotalMinutes() != null && workEntry.getTotalMinutes() > 0) {
+            // Direct duration path: user provided minutes without start/end times
+            int minutes = workEntry.getTotalMinutes();
+            if (!Boolean.TRUE.equals(workEntry.getIsManualCost()) && workEntry.getEquipment() != null) {
+                double hourlyRate = workEntry.getEquipment().getHourlyCharge();
+                double minuteRate = hourlyRate / 60.0;
+                if (hourlyRate > 0.0) {
+                    workEntry.setTotalCost(Math.round(minutes * minuteRate * 100.0) / 100.0);
+                } else {
+                    workEntry.setTotalCost(0.0);
+                }
+            }
         }
 
         WorkEntry saved = workEntryRepository.save(workEntry);
@@ -108,6 +121,11 @@ public class WorkEntryService {
         workEntry.setWorkDate(workEntryDetails.getWorkDate());
         workEntry.setStartTime(workEntryDetails.getStartTime());
         workEntry.setEndTime(workEntryDetails.getEndTime());
+        // Carry over direct duration if provided (no start/end times)
+        if (workEntryDetails.getStartTime() == null && workEntryDetails.getEndTime() == null
+                && workEntryDetails.getTotalMinutes() != null) {
+            workEntry.setTotalMinutes(workEntryDetails.getTotalMinutes());
+        }
         workEntry.setIsManualCost(workEntryDetails.getIsManualCost());
         workEntry.setTotalCost(workEntryDetails.getTotalCost());
         workEntry.setNotes(workEntryDetails.getNotes());

@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payments — SK SONS Cultivaters</title>
+    <title>Payments — SK SONS Cultivators</title>
     <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
 <div class="app-layout">
@@ -12,7 +14,7 @@
         <div class="sidebar-brand">
             <a href="dashboard.html" class="brand-logo">
                 <div class="brand-icon">🌾</div>
-                <div class="brand-text"><h1>SK SONS</h1><span>Cultivaters Mgmt</span></div>
+                <div class="brand-text"><h1>SK SONS</h1><span>Cultivators Mgmt</span></div>
             </a>
         </div>
         <nav class="sidebar-nav">
@@ -40,7 +42,7 @@
             <a href="attendance.html" class="nav-link"><span class="nav-icon">📅</span> Attendance & Salary</a>
         </nav>
         <div class="sidebar-footer">
-            <button class="btn-logout" onclick="logout()"><span>🚪</span> Logout</button>
+            <button class="btn-logout" onclick="logout()"><span>⏻</span> Logout</button>
         </div>
     </aside>
 
@@ -50,6 +52,7 @@
             <div class="topbar-right">
                 <span class="topbar-badge">🟢 Admin</span>
                 <span class="topbar-time" id="topbar-time"></span>
+                <button onclick="logout()" style="background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;">⏻ Logout</button>
             </div>
         </header>
 
@@ -84,8 +87,13 @@
             </div>
 
             <div class="section-header">
-                <h2 class="section-title">Payment <span>Records</span></h2>
-                <button class="btn btn-primary" onclick="openAddModal()">➕ Record Payment</button>
+                <div>
+                    <h2 class="section-title">Payment <span>Records</span></h2>
+                </div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <button class="btn btn-primary" onclick="openAddModal()">➕ Record Payment</button>
+                    <button class="btn btn-primary" onclick="openReceiptModal()" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);border:none;">📄 Generate Receipt</button>
+                </div>
             </div>
 
             <div class="table-card">
@@ -185,11 +193,276 @@
     </div>
 </div>
 
+<!-- Payment Receipt Modal -->
+<div class="modal-overlay" id="receiptModal">
+    <div class="modal modal-wide" style="max-width:520px;">
+        <div class="modal-header">
+            <span class="modal-title">📄 Generate Payment Receipt</span>
+            <button class="modal-close" onclick="closeModal('receiptModal')">×</button>
+        </div>
+        <div class="modal-body">
+            <form id="receiptForm" class="form-grid">
+                <div class="form-group span-2">
+                    <label>Select Client *</label>
+                    <select id="rClient" required>
+                        <option value="">-- Select Client --</option>
+                    </select>
+                </div>
+                <div class="form-group span-2" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                    <div>
+                        <label>From Date</label>
+                        <input type="date" id="rFrom">
+                    </div>
+                    <div>
+                        <label>To Date</label>
+                        <input type="date" id="rTo">
+                    </div>
+                </div>
+                <div class="form-group span-2">
+                    <label>Quick Range</label>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                        <button type="button" class="btn btn-secondary" style="font-size:12px;padding:6px 12px;" onclick="setQuickRange('all')">All Time</button>
+                        <button type="button" class="btn btn-secondary" style="font-size:12px;padding:6px 12px;" onclick="setQuickRange('today')">Today</button>
+                        <button type="button" class="btn btn-secondary" style="font-size:12px;padding:6px 12px;" onclick="setQuickRange('month')">This Month</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('receiptModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="generateReceiptPDF()" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);border:none;">⬇️ Download Receipt</button>
+        </div>
+    </div>
+</div>
+
 <script src="js/config.js"></script>
 <script src="js/api.js"></script>
 <script>
 let payments = [], clients = [];
 let deleteId = null;
+
+// ─── Receipt Modal ──────────────────────────────────────────────
+function openReceiptModal() {
+    const sel = document.getElementById('rClient');
+    sel.innerHTML = '<option value="">-- Select Client --</option>' +
+        clients.map(c => `<option value="${c.id}">${c.name} — ${c.village || ''}</option>`).join('');
+    setQuickRange('all');
+    openModal('receiptModal');
+}
+
+function setQuickRange(type) {
+    const today = new Date();
+    let from = '', to = '';
+    if (type === 'today') {
+        from = to = today.toISOString().split('T')[0];
+    } else if (type === 'month') {
+        const start = new Date(today.getFullYear(), today.getMonth(), 1);
+        const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        from = start.toISOString().split('T')[0];
+        to = end.toISOString().split('T')[0];
+    }
+    // 'all' leaves dates empty
+    document.getElementById('rFrom').value = from;
+    document.getElementById('rTo').value   = to;
+}
+
+function generateReceiptPDF() {
+    const clientId = parseInt(document.getElementById('rClient').value);
+    const fromDate = document.getElementById('rFrom').value;
+    const toDate   = document.getElementById('rTo').value;
+
+    if (!clientId) { showToast('Please select a client', 'error'); return; }
+    if (fromDate && toDate && fromDate > toDate) { showToast('From date must be before To date', 'error'); return; }
+
+    const client = clients.find(c => c.id === clientId);
+    let records = payments.filter(p => p.client?.id === clientId);
+
+    if (fromDate) records = records.filter(p => p.paymentDate >= fromDate);
+    if (toDate)   records = records.filter(p => p.paymentDate <= toDate);
+    
+    records.sort((a, b) => a.paymentDate.localeCompare(b.paymentDate));
+
+    if (records.length === 0) {
+        showToast('No payments found for this period', 'error'); return;
+    }
+
+    const totalPaidRange = records.reduce((s, p) => s + (p.paidAmount || 0), 0);
+    const totalPending = client.pendingBalance || 0;
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const pageW = doc.internal.pageSize.getWidth();
+    const margin = 15;
+
+    // ── Header Background ──
+    doc.setFillColor(21, 128, 61); // Blue header for invoices
+    doc.rect(0, 0, pageW, 38, 'F');
+
+    // ── Company Name ──
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(22);
+    doc.setTextColor(255, 255, 255);
+    doc.text('SK SONS CULTIVATORS', pageW / 2, 14, { align: 'center' });
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Agricultural Machinery Services — Namakkal', pageW / 2, 21, { align: 'center' });
+    doc.text('Phone: 9677628533', pageW / 2, 27, { align: 'center' });
+
+    // ── Report Title Badge ──
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(margin, 33, pageW - margin * 2, 10, 2, 2, 'F');
+    doc.setTextColor(21, 128, 61);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.text('PAYMENT RECEIPT / INVOICE', pageW / 2, 39.5, { align: 'center' });
+
+    // ── Info Section ──
+    let y = 52;
+    doc.setFillColor(240, 253, 244);
+    doc.roundedRect(margin, y - 5, pageW - margin * 2, 26, 3, 3, 'F');
+    doc.setDrawColor(187, 247, 208);
+    doc.roundedRect(margin, y - 5, pageW - margin * 2, 26, 3, 3, 'S');
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(107, 114, 128);
+    const col2 = pageW / 2 + 5;
+
+    doc.text('Billed To', margin + 5, y);
+    doc.text('Period', margin + 5, y + 8);
+    doc.text('Total Payments', margin + 5, y + 16);
+
+    doc.text('Current Pending', col2, y);
+    doc.text('Generated On', col2, y + 8);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(17, 24, 39);
+    doc.setFontSize(10);
+
+    const fmtDate = (d) => new Date(d + 'T00:00:00').toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+    const periodStr = (!fromDate && !toDate) ? 'All Time' : `${fromDate ? fmtDate(fromDate) : 'Start'}  to  ${toDate ? fmtDate(toDate) : 'Now'}`;
+
+    doc.text(`${client.name} ${client.village ? '— ' + client.village : ''}`, margin + 35, y);
+    doc.text(periodStr, margin + 35, y + 8);
+    doc.text(`${records.length} record(s)`, margin + 35, y + 16);
+
+    if (totalPending > 0) doc.setTextColor(239, 68, 68); else doc.setTextColor(34, 197, 94);
+    doc.text(`Rs. ${totalPending.toFixed(2)}`, col2 + 30, y);
+    
+    doc.setTextColor(17, 24, 39);
+    doc.text(new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' }), col2 + 30, y + 8);
+
+    // ── Payments Table ──
+    y += 32;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(21, 128, 61);
+    doc.text('PAYMENT DETAILS', margin, y);
+    y += 4;
+
+    const tableRows = records.map((r, i) => [
+        i + 1,
+        fmtDate(r.paymentDate),
+        r.paymentMode || 'CASH',
+        `Rs. ${(r.paidAmount || 0).toFixed(2)}`,
+        `Rs. ${(r.remainingBalance || 0).toFixed(2)}`,
+        r.remarks || '—'
+    ]);
+
+    doc.autoTable({
+        startY: y,
+        head: [['#', 'Date', 'Mode', 'Amount Paid', 'Balance Left', 'Remarks']],
+        body: tableRows,
+        theme: 'grid',
+        headStyles: {
+            fillColor: [21, 128, 61],
+            textColor: 255,
+            fontStyle: 'bold',
+            fontSize: 9,
+        },
+        bodyStyles: { fontSize: 8.5, textColor: [31, 41, 55] },
+        alternateRowStyles: { fillColor: [240, 253, 244] },
+        columnStyles: {
+            0: { cellWidth: 10 },
+            1: { cellWidth: 32 },
+            2: { cellWidth: 26 },
+            3: { cellWidth: 32 },
+            4: { cellWidth: 32 },
+            5: { cellWidth: 48 },
+        },
+        margin: { left: margin, right: margin }
+    });
+
+    // ── Summary Box ──
+    const finalY = doc.lastAutoTable.finalY + 8;
+    const boxH = 26;
+    doc.setFillColor(21, 128, 61);
+    doc.roundedRect(margin, finalY, pageW - margin * 2, boxH, 3, 3, 'F');
+
+    const sumY = finalY + 10;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(187, 247, 208);
+    doc.text('Total Paid (in period)', margin + 10, sumY);
+    doc.text('Current Outstanding Balance', pageW / 2 + 10, sumY);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    doc.setTextColor(255, 255, 255);
+    doc.text(`Rs. ${totalPaidRange.toFixed(2)}`, margin + 10, sumY + 8);
+    
+    if (totalPending > 0) doc.setTextColor(254, 202, 202); // Red tint if pending
+    doc.text(`Rs. ${totalPending.toFixed(2)}`, pageW / 2 + 10, sumY + 8);
+
+    // ── Signature Section ──
+    const sigY = finalY + boxH + 20;
+    doc.setDrawColor(209, 213, 219);
+    doc.setLineWidth(0.3);
+
+    // Left signature — Client
+    doc.line(margin, sigY, margin + 60, sigY);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    doc.setTextColor(107, 114, 128);
+    doc.text('Client Signature', margin + 2, sigY + 5);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(17, 24, 39);
+    doc.setFontSize(9);
+    doc.text(client.name, margin + 2, sigY + 10);
+
+    // Right signature — Authorized
+    doc.line(pageW - margin - 60, sigY, pageW - margin, sigY);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    doc.setTextColor(107, 114, 128);
+    doc.text('Authorized Signature', pageW - margin - 58, sigY + 5);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(17, 24, 39);
+    doc.setFontSize(9);
+    doc.text('SK SONS Cultivators', pageW - margin - 58, sigY + 10);
+
+    // ── Footer ──
+    const footerY = doc.internal.pageSize.getHeight() - 10;
+    doc.setDrawColor(229, 231, 235);
+    doc.setLineWidth(0.3);
+    doc.line(margin, footerY - 4, pageW - margin, footerY - 4);
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(7.5);
+    doc.setTextColor(156, 163, 175);
+    doc.text('This is a system-generated payment receipt. For any discrepancies, please contact us.', pageW / 2, footerY, { align: 'center' });
+
+    // ── Save ──
+    const sanitizedName = client.name.replace(/\s+/g, '_');
+    const rangeName = (!fromDate && !toDate) ? 'All' : `${fromDate || 'Start'}_to_${toDate || 'Now'}`;
+    const fileName = `Receipt_${sanitizedName}_${rangeName}.pdf`;
+    
+    doc.save(fileName);
+    closeModal('receiptModal');
+    showToast(`Receipt downloaded: ${fileName}`, 'success');
+}
+
+// Variables already declared at top of script
 
 async function loadAll() {
     try {

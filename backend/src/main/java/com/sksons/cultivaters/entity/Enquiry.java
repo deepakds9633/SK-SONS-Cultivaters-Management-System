@@ -3,6 +3,7 @@ package com.sksons.cultivaters.entity;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDateTime;
 
@@ -18,6 +19,8 @@ public class Enquiry {
     private String village;
     private String message;
     private LocalDateTime submissionDate;
+    @JsonProperty("isRead")
+    private boolean isRead = false;
 
     public Enquiry() {
         this.submissionDate = LocalDateTime.now();
@@ -41,4 +44,8 @@ public class Enquiry {
     
     public LocalDateTime getSubmissionDate() { return submissionDate; }
     public void setSubmissionDate(LocalDateTime submissionDate) { this.submissionDate = submissionDate; }
+
+    @JsonProperty("isRead")
+    public boolean isRead() { return isRead; }
+    public void setRead(boolean read) { isRead = read; }
 }

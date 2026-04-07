@@ -50,6 +50,7 @@
             </a>
             <a href="enquiries.html" class="nav-link active">
                 <span class="nav-icon">📨</span> Enquiries
+                <span class="enquiry-nav-badge nav-notification-badge" style="display:none;"></span>
             </a>
             <div class="nav-section-title">Drivers</div>
             <a href="drivers.html" class="nav-link">
@@ -164,7 +165,11 @@
         }
     }
 
-    document.addEventListener('DOMContentLoaded', loadEnquiries);
+    document.addEventListener('DOMContentLoaded', async () => {
+        await loadEnquiries();
+        try { await api.put('/enquiries/mark-all-read'); } catch(e) {}
+        if (typeof loadEnquiryBadge === 'function') loadEnquiryBadge();
+    });
 </script>
 </body>
 </html>

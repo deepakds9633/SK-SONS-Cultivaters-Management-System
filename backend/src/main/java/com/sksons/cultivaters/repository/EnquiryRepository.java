@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface EnquiryRepository extends MongoRepository<Enquiry, String> {
+    long countByIsReadFalse();
+    java.util.List<Enquiry> findByIsReadFalse();
 }

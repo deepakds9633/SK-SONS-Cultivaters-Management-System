@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -40,6 +41,22 @@ public class EnquiryController {
         }
         Enquiry savedEnquiry = enquiryRepository.save(enquiry);
         return new ResponseEntity<>(savedEnquiry, HttpStatus.CREATED);
+    }
+
+    // GET unread enquiry count
+    @GetMapping("/unread-count")
+    public Map<String, Long> getUnreadCount() {
+        long count = enquiryRepository.countByIsReadFalse();
+        return Map.of("count", count);
+    }
+
+    // PUT mark all enquiries as read
+    @PutMapping("/mark-all-read")
+    public ResponseEntity<Void> markAllRead() {
+        List<Enquiry> unread = enquiryRepository.findByIsReadFalse();
+        unread.forEach(e -> e.setRead(true));
+        enquiryRepository.saveAll(unread);
+        return ResponseEntity.ok().build();
     }
 
     // DELETE an enquiry

@@ -310,11 +310,16 @@
 
             // Check if it should be manual or readonly based on equipment name
             const eName = (e.equipment?.name || '').toLowerCase();
-            const isManual = e.isManualCost || eName.includes('loader');
+            const isManual = e.isManualCost || eName.includes('loader') || eName.includes('water tank');
 
             document.getElementById('wCost').value = e.totalCost || '';
             document.getElementById('wCost').readOnly = !isManual;
-            document.getElementById('costHint').textContent = isManual ? 'Loader: Enter cost manually' : 'Auto-calculated';
+
+            let hintText = 'Auto-calculated';
+            if (eName.includes('water tank')) hintText = '🌊 Water Tank: Enter cost manually (per trip / usage)';
+            else if (eName.includes('loader'))  hintText = 'Loader: Enter cost manually';
+            else if (eName.includes('seed'))    hintText = '🌱 Seed Sowing: Auto-calculated at ₹1,200/hr';
+            document.getElementById('costHint').textContent = hintText;
 
             document.getElementById('wNotes').value = e.notes || '';
             openModal('workModal');
@@ -344,9 +349,13 @@
             const costInput = document.getElementById('wCost');
             const costHint  = document.getElementById('costHint');
 
-            if (eName.includes('loader') || rate === 0) {
+            // Manual pricing: Loader, Water Tank, or unknown rate
+            if (eName.includes('loader') || eName.includes('water tank') || rate === 0) {
                 costInput.readOnly = false;
-                costHint.textContent = 'Loader/Unknown: Enter cost manually';
+                costInput.value = '';
+                costHint.textContent = eName.includes('water tank')
+                    ? '🌊 Water Tank: Enter cost manually (per trip / usage)'
+                    : 'Loader/Unknown: Enter cost manually';
                 return;
             }
 
